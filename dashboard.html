@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="uz-Latn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<title>Kabinet – RoboSTEAM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<noscript><style>.nav-auth[data-state] { visibility: visible; } body[data-guard] main { visibility: visible; }</style></noscript>
+<script defer src="js/config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/dist/umd/supabase.js" integrity="sha384-K1nraABOP/zFehpLIUksXebbs7jMpB8gYMlb+uhVKZcWT/9Vkq1+qhv6ndC+1Yuz" crossorigin="anonymous"></script>
+<script defer src="js/supabase-client.js"></script>
+<script defer src="js/auth.js"></script>
+</head>
+<!-- data-guard hides <main> until js/auth.js has confirmed a session (otherwise it redirects to login.html) -->
+<body data-page="dashboard" data-guard>
+
+<header class="nav">
+  <a class="logo" href="index.html">Robo<b>STEAM</b></a>
+  <div class="nav-auth" data-auth-nav data-state="loading">
+    <a class="nav-login" href="login.html" data-guest>Kirish</a>
+    <a class="btn" href="register.html" data-guest>Ro'yxatdan o'tish</a>
+    <a class="nav-user" href="dashboard.html" data-user hidden></a>
+    <button class="btn ghost" type="button" data-logout data-user hidden>Chiqish</button>
+  </div>
+</header>
+
+<main class="auth">
+  <div class="wrap">
+    <section class="auth-card" aria-labelledby="dash-title">
+      <noscript><p class="form-msg is-error">Kabinet uchun JavaScript yoqilgan bo'lishi kerak.</p></noscript>
+      <h1 class="auth-title" id="dash-title">Salom, <span data-user-name></span>!</h1>
+      <p class="auth-sub">RoboSTEAM akademiyasiga xush kelibsiz.</p>
+      <p class="dash-meta">Darajangiz: <strong data-user-level>—</strong></p>
+      <div class="dash-card">
+        <span class="soon">Tez orada</span>
+        <h2>Darslar tayyorlanmoqda.</h2>
+        <p>Birinchi video darslar ochilishi bilan shu yerda paydo bo'ladi va sizga xabar beramiz.</p>
+      </div>
+      <p class="auth-alt"><button class="btn ghost" type="button" data-logout>Chiqish</button></p>
+    </section>
+
+    <div class="auth-art" aria-hidden="true">
+      <picture>
+        <source srcset="public/images/robotic-arm.webp" type="image/webp">
+        <img src="public/images/robotic-arm.png" width="480" height="577" class="tall" alt="" decoding="async">
+      </picture>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,7 @@
+# Local Supabase config. Copy js/config.example.js to js/config.js and paste the PUBLISHABLE key.
+# (The publishable key is safe to commit; remove this line once js/config.js holds only that key.)
+js/config.js
+
+node_modules/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="uz-Latn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- CSP: CDN scripts (GSAP, Lenis, supabase-js), Google Fonts, Supabase API. style-src needs 'unsafe-inline' for the rover's style attributes.
+     TODO: once the project URL is known, narrow *.supabase.co to it; set frame-ancestors as an HTTP header on the host (not possible in a meta tag). -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>RoboSTEAM – bepul onlayn robototexnika akademiyasi</title>
+<meta name="description" content="Robototexnika va elektronika texnigi bo'lishni noldan o'rganing: bepul video darslar va mustaqil amaliy mashqlar. Tez orada brauzerdagi simulyator.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="uz_UZ">
+<meta property="og:site_name" content="RoboSTEAM">
+<meta property="og:title" content="RoboSTEAM – bepul onlayn robototexnika akademiyasi">
+<meta property="og:description" content="Bepul video darslar va amaliy mashqlar. Noldan boshlab robototexnika texnigi bo'ling.">
+<!-- TODO: og:url and og:image need the final absolute site URL and a 1200x630 share image -->
+<!-- <meta property="og:url" content="https://TODO/"> -->
+<!-- <meta property="og:image" content="https://TODO/og-image.png"> -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<!-- First astronaut frame + frame manifest; media queries match TUNING.mobileQuery in mascot.js -->
+<link rel="preload" as="image" href="public/frames/clip2/684/001.webp" media="(min-width: 761px)" fetchpriority="high">
+<link rel="preload" as="image" href="public/frames/clip2/500/001.webp" media="(max-width: 760px)" fetchpriority="high">
+<link rel="preload" as="fetch" href="public/frames/manifest.json" crossorigin>
+<noscript><style>.nav-auth[data-state] { visibility: visible; }</style></noscript>
+<!-- Auth (nav state only on this page) -->
+<script defer src="js/config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/dist/umd/supabase.js" integrity="sha384-K1nraABOP/zFehpLIUksXebbs7jMpB8gYMlb+uhVKZcWT/9Vkq1+qhv6ndC+1Yuz" crossorigin="anonymous"></script>
+<script defer src="js/supabase-client.js"></script>
+<script defer src="js/auth.js"></script>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="gear" viewBox="0 0 100 100">
+      <path fill="#fff" d="M43 4h14l3 11a36 36 0 0 1 9 4l10-6 10 10-6 10a36 36 0 0 1 4 9l11 3v14l-11 3a36 36 0 0 1-4 9l6 10-10 10-10-6a36 36 0 0 1-9 4l-3 11H43l-3-11a36 36 0 0 1-9-4l-10 6-10-10 6-10a36 36 0 0 1-4-9L2 57V43l11-3a36 36 0 0 1 4-9l-6-10 10-10 10 6a36 36 0 0 1 9-4zM50 32a18 18 0 1 0 0 36 18 18 0 0 0 0-36z" fill-rule="evenodd"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="nav">
+  <a class="logo" href="#top">Robo<b>STEAM</b></a>
+  <ul>
+    <li><a href="#about">Akademiya</a></li>
+    <li><a href="#path">O'quv yo'li</a></li>
+    <li><a href="#how">Qanday o'rganiladi</a></li>
+    <li><a href="#build">Loyihalar</a></li>
+    <li><a href="#simulator">Simulyator</a></li>
+  </ul>
+  <div class="nav-auth" data-auth-nav data-state="loading">
+    <a class="nav-login" href="login.html" data-guest>Kirish</a>
+    <a class="btn" href="register.html" data-guest>Ro'yxatdan o'tish</a>
+    <a class="nav-user" href="dashboard.html" data-user hidden></a>
+    <button class="btn ghost" type="button" data-logout data-user hidden>Chiqish</button>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <h1>
+          <span class="ln"><span>Bepul ko'ring.</span></span>
+          <span class="ln"><span>Mashq qiling.</span></span>
+          <span class="ln"><span>Robot yasang.</span></span>
+        </h1>
+        <p class="lead" data-hero-in>Bepul video darslar va amaliy mashqlar. Hech qanday tajriba shart emas, noldan boshlaymiz.</p>
+        <div class="cta" data-hero-in>
+          <a class="btn blue" href="#join">O'rganishni boshlash</a>
+          <a class="btn ghost" href="#path">Yo'lni ko'rish</a>
+        </div>
+      </div>
+      <div class="stage" data-hero-in>
+        <svg class="gear" data-gear aria-hidden="true"><use href="#gear"/></svg>
+        <canvas class="astro" width="684" height="678" role="img" aria-label="RoboSTEAM kosmonavti"></canvas>
+        <img class="astro-poster" data-src="public/frames/poster.png" alt="RoboSTEAM kosmonavti" hidden>
+        <noscript><img class="astro-poster" src="public/frames/poster.png" alt="RoboSTEAM kosmonavti"></noscript>
+        <span class="tag">Birinchi robotingizni yasashga tayyormisiz?</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="marquee" aria-hidden="true"><div>
+    <span>Elektronika</span><span>Arduino</span><span>Sensorlar</span><span>Motorlar</span><span>Dasturlash</span><span>Simulyatsiyalar</span><span>Nosozliklarni tuzatish</span>
+    <span>Elektronika</span><span>Arduino</span><span>Sensorlar</span><span>Motorlar</span><span>Dasturlash</span><span>Simulyatsiyalar</span><span>Nosozliklarni tuzatish</span>
+  </div></div>
+
+  <section class="about" id="about">
+    <div class="wrap">
+      <div>
+        <h2 class="title">Qilib o'rganasiz. Hamma uchun bepul.</h2>
+        <p class="sub">Har bir mavzu qisqa video va amaliy mashqdan iborat. Nazariya keraklicha, qolgani amaliyot. Robototexnika yoki elektronika texnigi bo'lishni istagan har bir kishi uchun.</p>
+      </div>
+      <!-- Only true statements here. Add real numbers (lessons, learners) only once they exist. -->
+      <div class="stats">
+        <div class="stat"><strong data-count="100" data-suffix="%">0</strong>bepul, hamma uchun</div>
+        <div class="stat"><strong class="txt">Noldan</strong>boshlaymiz, tajriba shart emas</div>
+        <div class="stat"><strong class="txt">Mustaqil</strong>o'z sur'atingizda o'rganing</div>
+        <div class="stat"><strong class="txt">Tez orada</strong>brauzerdagi simulyator</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="programs" id="path">
+    <div class="wrap">
+      <div class="head">
+        <div>
+          <h2 class="title">O'quv yo'li: uch bosqich.</h2>
+        </div>
+        <picture class="arm" data-parallax>
+          <source srcset="public/images/robotic-arm.webp" type="image/webp">
+          <img src="public/images/robotic-arm.png" width="480" height="577" alt="Ochiq qisqichli oq RoboSTEAM robot qo'li" loading="lazy" decoding="async">
+        </picture>
+      </div>
+      <div class="cards">
+        <!-- No lessons are published yet, so every level shows "Tez orada". Remove the badge per level when it goes live. -->
+        <article class="card">
+          <div class="badges"><span class="age">1-bosqich</span><span class="soon">Tez orada</span></div>
+          <h3>Elektronika asoslari</h3>
+          <p>Tok qanday oqishini tushunib, birinchi sxemalaringizni yig'asiz.</p>
+          <ul><li>Tok, kuchlanish va qarshilik</li><li>Breadboard'da sxema yig'ish</li><li>Multimetr bilan o'lchash</li></ul>
+          <a href="#join">Xabardor qilish</a>
+        </article>
+        <article class="card">
+          <div class="badges"><span class="age">2-bosqich</span><span class="soon">Tez orada</span></div>
+          <h3>Arduino va sensorlar</h3>
+          <p>Mikrokontrollerni dasturlab, sensorlar va motorlarni boshqarasiz.</p>
+          <ul><li>Arduino dasturlash asoslari</li><li>Sensorlardan ma'lumot o'qish</li><li>Motor va servolarni boshqarish</li></ul>
+          <a href="#join">Xabardor qilish</a>
+        </article>
+        <article class="card">
+          <div class="badges"><span class="age">3-bosqich</span><span class="soon">Tez orada</span></div>
+          <h3>Robot yasash va nosozliklarni tuzatish</h3>
+          <p>Hammasini bitta ishlaydigan robotga birlashtirib, xatolarni topishni o'rganasiz.</p>
+          <ul><li>Korpus va yuritmalarni yig'ish</li><li>Tizimni bosqichma-bosqich sinash</li><li>Nosozliklarni topish va tuzatish</li></ul>
+          <a href="#join">Xabardor qilish</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="how" id="how">
+    <div class="wrap">
+      <div class="side">
+        <h2 class="title">Qanday o'rganasiz.</h2>
+        <!-- Rover parts (public/images/rover/manifest.json); main.js slides each down by --dy as the rail fills -->
+        <div class="rover" role="img" aria-label="Qismlardan yig'ilayotgan g'ildirakli RoboSTEAM roboti">
+          <img class="rover-part" src="public/images/rover/chassis-520.webp" srcset="public/images/rover/chassis-360.webp 360w, public/images/rover/chassis-520.webp 520w" sizes="(max-width: 860px) 180px, 260px" width="520" height="255" style="left:0%;top:69.78%;width:100%;--dy:0%" alt="" aria-hidden="true" decoding="async">
+          <img class="rover-part" data-step="2" src="public/images/rover/motor-520.webp" srcset="public/images/rover/motor-360.webp 111w, public/images/rover/motor-520.webp 160w" sizes="(max-width: 860px) 55.4px, 80px" width="160" height="85" style="left:38.11%;top:44.84%;width:30.77%;--dy:204.3%" alt="" aria-hidden="true" decoding="async">
+          <img class="rover-part" data-step="1" src="public/images/rover/lower-shell-520.webp" srcset="public/images/rover/lower-shell-360.webp 258w, public/images/rover/lower-shell-520.webp 373w" sizes="(max-width: 860px) 129px, 186.4px" width="373" height="152" style="left:13.11%;top:53.66%;width:71.68%;--dy:50.3%" alt="" aria-hidden="true" decoding="async">
+          <img class="rover-part" data-step="3" src="public/images/rover/main-shell-520.webp" srcset="public/images/rover/main-shell-360.webp 244w, public/images/rover/main-shell-520.webp 353w" sizes="(max-width: 860px) 122.1px, 176.4px" width="353" height="193" style="left:15.73%;top:23.33%;width:67.83%;--dy:111.32%" alt="" aria-hidden="true" decoding="async">
+          <img class="rover-part" data-step="4" src="public/images/rover/lid-520.webp" srcset="public/images/rover/lid-360.webp 200w, public/images/rover/lid-520.webp 289w" sizes="(max-width: 860px) 100.1px, 144.5px" width="289" height="89" style="left:21.68%;top:13.98%;width:55.59%;--dy:302.04%" alt="" aria-hidden="true" decoding="async">
+          <img class="rover-part" data-step="5" src="public/images/rover/head-520.webp" srcset="public/images/rover/head-360.webp 152w, public/images/rover/head-520.webp 219w" sizes="(max-width: 860px) 75.8px, 109.5px" width="219" height="125" style="left:30.94%;top:0%;width:42.13%;--dy:236.96%" alt="" aria-hidden="true" decoding="async">
+          <img class="rover-part rover-light" data-step="5" src="public/images/rover/light-520.webp" srcset="public/images/rover/light-360.webp 26w, public/images/rover/light-520.webp 37w" sizes="(max-width: 860px) 12.9px, 18.6px" width="37" height="29" style="left:55.94%;top:3.12%;width:7.17%;--dy:1021.88%" alt="" aria-hidden="true" decoding="async">
+        </div>
+      </div>
+      <div class="steps">
+        <div class="rail"><i></i></div>
+        <div class="step" data-n="1"><h3>Qisqa video darsni ko'ring</h3><p>Har bir mavzu qisqa videoda, oddiy tilda tushuntiriladi.</p></div>
+        <div class="step" data-n="2"><h3>Mustaqil mashq qiling</h3><p>Har bir darsdan keyin mashqlar bor. Ularni o'z sur'atingizda bajaring.</p></div>
+        <div class="step" data-n="3"><h3>Simulyatorda sinab ko'ring <span class="soon">Tez orada</span></h3><p>Sxemani brauzerning o'zida yig'ib, dasturlaysiz. Detal sotib olish shart emas.</p></div>
+        <div class="step" data-n="4"><h3>Haqiqiy robotni yasang</h3><p>O'rganganlaringizni haqiqiy detallarda birlashtirib, ishlaydigan robot yasaysiz.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="projects" id="build">
+    <div class="wrap">
+      <h2 class="title">Nimalarni yasaysiz.</h2>
+      <!-- Example builds. TODO: replace the "Rasm" placeholders with real photos, and confirm which level each build belongs to. -->
+      <div class="row">
+        <article class="proj"><div class="ph">Rasm: chiziq bo'ylab yuruvchi mashina</div><div><h3>Chiziq bo'ylab yuruvchi mashina</h3><p>Namuna loyiha · 2-bosqich</p></div></article>
+        <article class="proj"><div class="ph">Rasm: saralovchi robot qo'l</div><div><h3>Saralovchi robot qo'l</h3><p>Namuna loyiha · 3-bosqich</p></div></article>
+        <article class="proj"><div class="ph">Rasm: aqlli gultuvak</div><div><h3>Aqlli gultuvak</h3><p>Namuna loyiha · 2-bosqich</p></div></article>
+        <article class="proj"><div class="ph">Rasm: to'siqdan qochuvchi robot</div><div><h3>To'siqdan qochuvchi robot</h3><p>Namuna loyiha · 3-bosqich</p></div></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Simulator preview: static HTML/SVG mock-up only, no functionality -->
+  <section class="sim" id="simulator">
+    <div class="wrap">
+      <div>
+        <span class="soon">Tez orada</span>
+        <h2 class="title">Simulyator.</h2>
+        <p class="sub">Sxemani brauzerning o'zida yig'ib, dasturlay olasiz. Hech qanday detal kerak emas: simlarni ulang, kodni yozing va natijani darhol ko'ring.</p>
+      </div>
+      <div class="sim-panel" role="img" aria-label="Simulyator ko'rinishi namunasi: Arduino plata, simlar, LED va kod oynasi">
+        <div class="sim-bar" aria-hidden="true"><i></i><i></i><i></i><span>birinchi-sxema.ino</span></div>
+        <div class="sim-body" aria-hidden="true">
+          <svg class="sim-board" viewBox="0 0 320 230">
+            <defs>
+              <pattern id="sim-holes" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="6" cy="6" r="1.6" class="hole"/></pattern>
+              <radialGradient id="sim-glow"><stop offset="0" stop-color="#FF6B57" stop-opacity=".75"/><stop offset="1" stop-color="#FF6B57" stop-opacity="0"/></radialGradient>
+            </defs>
+            <!-- breadboard -->
+            <rect x="178" y="18" width="126" height="194" rx="10" class="bb"/>
+            <rect x="184" y="24" width="114" height="182" rx="6" fill="url(#sim-holes)"/>
+            <line x1="241" y1="24" x2="241" y2="206" class="bb-gap"/>
+            <!-- microcontroller board -->
+            <rect x="16" y="44" width="128" height="150" rx="12" class="mcu"/>
+            <rect x="30" y="54" width="100" height="10" rx="3" class="pins"/>
+            <rect x="30" y="174" width="100" height="10" rx="3" class="pins"/>
+            <rect x="52" y="96" width="56" height="42" rx="5" class="chip"/>
+            <text x="80" y="122" class="chip-label">MCU</text>
+            <text x="36" y="80" class="pin-label">D13</text>
+            <text x="100" y="80" class="pin-label">GND</text>
+            <!-- wires -->
+            <path d="M44 59 C 44 20, 150 12, 210 60" class="wire w1"/>
+            <path d="M112 59 C 120 30, 170 150, 270 150" class="wire w2"/>
+            <!-- resistor -->
+            <line x1="210" y1="60" x2="210" y2="72" class="leg"/>
+            <rect x="203" y="72" width="14" height="30" rx="5" class="res"/>
+            <rect x="203" y="80" width="14" height="3" class="band"/><rect x="203" y="88" width="14" height="3" class="band"/>
+            <line x1="210" y1="102" x2="210" y2="112" class="leg"/>
+            <line x1="210" y1="112" x2="258" y2="112" class="leg"/>
+            <!-- LED -->
+            <circle cx="264" cy="96" r="26" fill="url(#sim-glow)"/>
+            <line x1="258" y1="104" x2="258" y2="112" class="leg"/>
+            <line x1="270" y1="104" x2="270" y2="150" class="leg"/>
+            <path d="M254 104 V92 a10 10 0 0 1 20 0 V104 Z" class="led"/>
+          </svg>
+          <pre class="sim-code"><code><span class="c">// LED'ni yoqib-o'chirish</span>
+<span class="k">void</span> setup() {
+  pinMode(<span class="n">13</span>, OUTPUT);
+}
+
+<span class="k">void</span> loop() {
+  digitalWrite(<span class="n">13</span>, HIGH);
+  delay(<span class="n">500</span>);
+  digitalWrite(<span class="n">13</span>, LOW);
+  delay(<span class="n">500</span>);
+}</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="join" id="join">
+    <div class="wrap">
+      <div>
+        <h2 class="title">Bepul akademiyaga qo'shiling.</h2>
+        <p class="sub">Ro'yxatga yoziling: birinchi darslar ochilishi bilan sizga xabar beramiz. To'lov ham, majburiyat ham yo'q.</p>
+        <picture class="ticket-bot" id="cheer">
+          <source type="image/webp" srcset="public/images/ticket-robot-400.webp 400w, public/images/ticket-robot-600.webp 600w" sizes="(max-width: 860px) 200px, 300px">
+          <img src="public/images/ticket-robot.png" width="600" height="518" alt="Oltin chiptani tutib turgan RoboSTEAM yordamchi roboti" loading="lazy" decoding="async">
+        </picture>
+      </div>
+      <!-- Short start: continues on register.html with the name prefilled (works without JS too) -->
+      <form class="form" id="form" action="register.html" method="get" novalidate>
+        <label>Ismingiz<input name="name" autocomplete="name" maxlength="80" required></label>
+        <button class="btn" type="submit">Bepul qo'shilish</button>
+        <p class="form-note">Keyingi qadamda email va parol bilan hisob ochasiz.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="big">Robo<br>STEAM</div>
+    <nav>
+      <span>Bepul robototexnika akademiyasi, Toshkent</span>
+      <!-- TODO: real Telegram and Instagram links -->
+      <a href="#">Telegram</a>
+      <a href="#">Instagram</a>
+      <span>Universitet loyihasi sifatida yaratilgan</span>
+    </nav>
+  </div>
+  <!-- The image's bottom is a hard cut: it sits flush on the footer's bottom edge, as if peeking up from behind it -->
+  <div class="peek">
+    <picture>
+      <source type="image/webp" srcset="public/images/astronaut-wave-340.webp 340w, public/images/astronaut-wave-520.webp 520w" sizes="(max-width: 760px) 170px, 260px">
+      <img src="public/images/astronaut-wave.png" width="520" height="388" alt="Xayrlashib qo'l silkitayotgan kosmonavt" loading="lazy" decoding="async">
+    </picture>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="mascot.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

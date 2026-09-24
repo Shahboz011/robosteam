@@ -1,0 +1,177 @@
+{
+  "source": "Exploded_view_of_wheeled_robot_20260924081559.jpeg",
+  "box": {
+    "x": 227,
+    "y": 53,
+    "w": 572,
+    "h": 930
+  },
+  "widths": {
+    "desktop": 520,
+    "mobile": 360
+  },
+  "order": [
+    "chassis",
+    "motor",
+    "lower-shell",
+    "main-shell",
+    "lid",
+    "head"
+  ],
+  "parts": [
+    {
+      "name": "chassis",
+      "x": 0,
+      "y": 649,
+      "w": 572,
+      "h": 281,
+      "dy": 0,
+      "files": {
+        "desktop": {
+          "file": "chassis-520.webp",
+          "w": 520,
+          "h": 255,
+          "kb": 21.5
+        },
+        "mobile": {
+          "file": "chassis-360.webp",
+          "w": 360,
+          "h": 177,
+          "kb": 13.4
+        }
+      }
+    },
+    {
+      "name": "motor",
+      "x": 218,
+      "y": 417,
+      "w": 176,
+      "h": 93,
+      "dy": 190,
+      "files": {
+        "desktop": {
+          "file": "motor-520.webp",
+          "w": 160,
+          "h": 85,
+          "kb": 4.7
+        },
+        "mobile": {
+          "file": "motor-360.webp",
+          "w": 111,
+          "h": 59,
+          "kb": 3.2
+        }
+      }
+    },
+    {
+      "name": "lower-shell",
+      "x": 75,
+      "y": 499,
+      "w": 410,
+      "h": 167,
+      "dy": 84,
+      "files": {
+        "desktop": {
+          "file": "lower-shell-520.webp",
+          "w": 373,
+          "h": 152,
+          "kb": 8.9
+        },
+        "mobile": {
+          "file": "lower-shell-360.webp",
+          "w": 258,
+          "h": 105,
+          "kb": 5.6
+        }
+      }
+    },
+    {
+      "name": "main-shell",
+      "x": 90,
+      "y": 217,
+      "w": 388,
+      "h": 212,
+      "dy": 236,
+      "files": {
+        "desktop": {
+          "file": "main-shell-520.webp",
+          "w": 353,
+          "h": 193,
+          "kb": 10.6
+        },
+        "mobile": {
+          "file": "main-shell-360.webp",
+          "w": 244,
+          "h": 133,
+          "kb": 6.7
+        }
+      }
+    },
+    {
+      "name": "lid",
+      "x": 124,
+      "y": 130,
+      "w": 318,
+      "h": 98,
+      "dy": 296,
+      "files": {
+        "desktop": {
+          "file": "lid-520.webp",
+          "w": 289,
+          "h": 89,
+          "kb": 4.6
+        },
+        "mobile": {
+          "file": "lid-360.webp",
+          "w": 200,
+          "h": 62,
+          "kb": 3.1
+        }
+      }
+    },
+    {
+      "name": "head",
+      "x": 177,
+      "y": 0,
+      "w": 241,
+      "h": 138,
+      "dy": 327,
+      "files": {
+        "desktop": {
+          "file": "head-520.webp",
+          "w": 219,
+          "h": 125,
+          "kb": 5.6
+        },
+        "mobile": {
+          "file": "head-360.webp",
+          "w": 152,
+          "h": 87,
+          "kb": 3.6
+        }
+      }
+    },
+    {
+      "name": "light",
+      "x": 320,
+      "y": 29,
+      "w": 41,
+      "h": 32,
+      "dy": 327,
+      "files": {
+        "desktop": {
+          "file": "light-520.webp",
+          "w": 37,
+          "h": 29,
+          "kb": 1.1
+        },
+        "mobile": {
+          "file": "light-360.webp",
+          "w": 26,
+          "h": 20,
+          "kb": 0.7
+        }
+      }
+    }
+  ]
+}
