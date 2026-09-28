@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="uz-Latn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<title>Sozlamalar – RoboSTEAM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<noscript><style>body[data-guard] main { visibility: visible; }</style></noscript>
+<script defer src="js/config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/dist/umd/supabase.js" integrity="sha384-K1nraABOP/zFehpLIUksXebbs7jMpB8gYMlb+uhVKZcWT/9Vkq1+qhv6ndC+1Yuz" crossorigin="anonymous"></script>
+<script defer src="js/supabase-client.js"></script>
+<script defer src="js/auth.js"></script>
+<script defer src="js/app.js"></script>
+</head>
+<!-- data-guard hides <main> until js/app.js has confirmed a session (otherwise it redirects to login.html) -->
+<body class="app" data-page="settings" data-guard>
+<script src="js/shell.js"></script>
+
+<main class="app-main" id="main">
+  <div class="page">
+    <noscript><p class="form-msg is-error">Bu sahifa uchun JavaScript yoqilgan bo'lishi kerak.</p></noscript>
+
+    <header class="banner">
+      <div class="banner-text">
+        <p class="banner-kicker">Hisob</p>
+        <h1 class="banner-title">Sozlamalar</h1>
+        <p class="banner-sub">Parolingizni yangilang va hisobingiz xavfsizligini boshqaring.</p>
+      </div>
+      <div class="banner-art is-peek">
+        <!-- TODO(settings-image): temporary astronaut. Swap for the keyed src/images/settings/settings.jpg
+             (public/images/settings-480.webp, settings-960.webp, settings.png) once that file exists. -->
+        <picture>
+          <source type="image/webp" srcset="public/images/astronaut-forgot-480.webp 480w, public/images/astronaut-forgot-960.webp 960w" sizes="(min-width: 1024px) 260px, (min-width: 640px) 220px, 160px">
+          <img src="public/images/astronaut-forgot.png" width="927" height="980" alt="Kaftida yashil kalitni ko'rsatib turgan kosmonavt" decoding="async">
+        </picture>
+      </div>
+    </header>
+
+    <section class="panel" aria-labelledby="pw-h">
+      <h2 class="section-h" id="pw-h">Parolni o'zgartirish</h2>
+      <form class="auth-form" id="password-form" novalidate>
+        <div class="field">
+          <label for="current-password">Joriy parol</label>
+          <div class="pw">
+            <input id="current-password" name="current-password" type="password" autocomplete="current-password" required>
+            <button class="pw-toggle" type="button" data-pw-toggle aria-controls="current-password" aria-pressed="false" aria-label="Parolni ko'rsatish">Ko'rsatish</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="password">Yangi parol</label>
+          <div class="pw">
+            <input id="password" name="new-password" type="password" autocomplete="new-password" maxlength="72" required aria-describedby="pw-hint">
+            <button class="pw-toggle" type="button" data-pw-toggle aria-controls="password" aria-pressed="false" aria-label="Parolni ko'rsatish">Ko'rsatish</button>
+          </div>
+          <p class="field-hint" id="pw-hint">Kamida 8 ta belgi.</p>
+        </div>
+        <div class="field">
+          <label for="password2">Yangi parolni takrorlang</label>
+          <input id="password2" name="new-password2" type="password" autocomplete="new-password" required>
+        </div>
+        <p class="form-msg" id="pw-msg" role="status" hidden></p>
+        <button class="btn blue" type="submit">Parolni yangilash</button>
+      </form>
+    </section>
+
+    <section class="panel" aria-labelledby="sessions-h">
+      <h2 class="section-h" id="sessions-h">Qurilmalar</h2>
+      <p>Hisobingizga boshqa qurilmalarda ham kirgan bo'lsangiz, hammasidan birdaniga chiqishingiz mumkin.</p>
+      <p class="form-msg" id="signout-msg" role="status" hidden></p>
+      <button class="btn ghost" type="button" data-signout-all>Barcha qurilmalardan chiqish</button>
+    </section>
+
+    <section class="panel is-danger" aria-labelledby="danger-h">
+      <h2 class="section-h" id="danger-h">Hisobni o'chirish</h2>
+      <p>Hisobingiz va barcha natijalaringiz butunlay o'chiriladi. Bu imkoniyat tez orada qo'shiladi.</p>
+      <!-- TODO(delete-account): enable once the server-side delete function exists (see settingsPage in js/app.js) -->
+      <button class="btn ghost" type="button" disabled>Hisobni o'chirish <span class="soon">Tez orada</span></button>
+    </section>
+  </div>
+</main>
+
+</body>
+</html>

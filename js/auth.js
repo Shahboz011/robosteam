@@ -1,5 +1,7 @@
 /* RoboSTEAM auth: nav state, route guards and the auth pages.
-   <body data-page="home|register|login|forgot|reset|dashboard"> selects what runs.
+   <body data-page="home|register|login|forgot|reset|..."> selects what runs; the signed-in app pages
+   (dashboard, academy, progress, simulator, profile, settings) are driven by js/app.js and js/academy.js, which reuse
+   the helpers exported below as window.RSAuth.
    Every user-facing string is in T, so translating means editing this one object. */
 (function () {
   'use strict';
@@ -37,10 +39,12 @@
     forgotSent: "Agar bu email ro'yxatdan o'tgan bo'lsa, parolni tiklash havolasini yubordik. Pochtangizni tekshiring.",
     signedOut: 'Hisobdan chiqdingiz.',
     passwordUpdated: 'Parol yangilandi.',
+    reauth: "Xavfsizlik uchun hisobdan chiqib, qayta kiring va keyin parolni o'zgartiring.",
     friend: "do'stim",
     levels: { beginner: 'Boshlovchi', 'some-electronics': 'Elektronikani biroz biladi', builder: 'Allaqachon narsalar yasaydi' },
   };
 
+  var GUARDED = { dashboard: 1, academy: 1, progress: 1, simulator: 1, profile: 1, settings: 1 }; // signed-in only (js/app.js guards them)
   var LEVELS = ['beginner', 'some-electronics', 'builder']; // must match the check constraint in supabase/schema.sql
   var RESEND_COOLDOWN = 60;                                  // seconds; Supabase rate-limits auth emails
   var sb = window.sb || null;
@@ -80,6 +84,7 @@
     if (code === 'weak_password' || err.name === 'AuthWeakPasswordError' || /password should|weak password/i.test(msg)) return T.weakPassword;
     if (code === 'same_password' || /should be different/i.test(msg)) return T.samePassword;
     if (code === 'email_address_invalid' || /invalid.*email|email.*invalid/i.test(msg)) return T.emailInvalid;
+    if (code === 'reauthentication_needed' || /reauthenticat/i.test(msg)) return T.reauth;
     if (code === 'otp_expired' || /expired/i.test(msg)) return T.linkExpired;
     return T.generic;
   }
@@ -143,6 +148,13 @@
     n = String(n).trim();
     return n || (user && user.email ? user.email.split('@')[0] : '');
   }
+
+  // Shared with js/app.js (profile and settings forms, user card).
+  window.RSAuth = {
+    T: T, LEVELS: LEVELS, mapError: mapError, linkError: linkError, displayName: displayName,
+    say: say, setBusy: setBusy, fieldError: fieldError, check: check,
+    vName: vName, vNewPw: vNewPw, vFilled: vFilled, vSame: vSame,
+  };
 
   // Resend the signup confirmation email, with a cooldown to stay under Supabase's rate limit.
   function resendButton(btn, msgEl, getEmail) {
@@ -334,27 +346,6 @@
     });
   }
 
-  async function dashboard(session) {
-    if (!session) {
-      location.replace(linkError() ? 'login.html?notice=link-expired' : 'login.html?next=' + encodeURIComponent('dashboard.html'));
-      return;
-    }
-    var user = session.user, nameEl = $('[data-user-name]'), levelEl = $('[data-user-level]');
-    function show(profile) {
-      nameEl.textContent = displayName(user, profile) || T.friend;
-      var level = (profile && profile.level) || (user.user_metadata && user.user_metadata.level);
-      levelEl.textContent = T.levels[level] || '—';
-    }
-    show(null);
-    document.body.removeAttribute('data-guard');
-    // Profile row; RLS only lets the user read their own row.
-    try {
-      var res = await sb.from('profiles').select('full_name, level').eq('id', user.id).maybeSingle();
-      if (res.error) throw res.error;
-      if (res.data) show(res.data);
-    } catch (err) { console.warn('[auth] profile', err); }
-  }
-
   // ---------- start ----------
   initPasswordToggles();
 
@@ -365,7 +356,7 @@
       $$('button, input, select', form).forEach(function (el) { el.disabled = true; });
     });
     if (page === 'reset') { $('#invalid-msg').textContent = T.notConfigured; showStep($('.auth-card'), 'invalid'); }
-    if (page === 'dashboard') location.replace('login.html');
+    if (GUARDED[page]) location.replace('login.html');
     return;
   }
 
@@ -373,11 +364,11 @@
   sb.auth.onAuthStateChange(function (event, session) {
     // Keep this callback synchronous: awaiting other supabase calls in here can deadlock the client.
     renderNav(session);
-    if (event === 'SIGNED_OUT' && page === 'dashboard') location.replace('login.html?notice=signed-out');
+    if (event === 'SIGNED_OUT' && GUARDED[page]) location.replace('login.html?notice=signed-out');
     if (event === 'PASSWORD_RECOVERY' && page === 'reset') showStep($('.auth-card'), 'form');
   });
 
-  var pages = { register: register, login: login, forgot: forgot, reset: reset, dashboard: dashboard };
+  var pages = { register: register, login: login, forgot: forgot, reset: reset };
   // getSession waits for supabase-js to finish reading the URL (email links) and local storage.
   sb.auth.getSession().then(function (res) {
     var session = res && res.data ? res.data.session : null;

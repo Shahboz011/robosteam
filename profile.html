@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="uz-Latn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<title>Profil – RoboSTEAM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<noscript><style>body[data-guard] main { visibility: visible; }</style></noscript>
+<script defer src="js/config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/dist/umd/supabase.js" integrity="sha384-K1nraABOP/zFehpLIUksXebbs7jMpB8gYMlb+uhVKZcWT/9Vkq1+qhv6ndC+1Yuz" crossorigin="anonymous"></script>
+<script defer src="js/supabase-client.js"></script>
+<script defer src="js/auth.js"></script>
+<script defer src="js/app.js"></script>
+</head>
+<!-- data-guard hides <main> until js/app.js has confirmed a session (otherwise it redirects to login.html) -->
+<body class="app" data-page="profile" data-guard>
+<script src="js/shell.js"></script>
+
+<main class="app-main" id="main">
+  <div class="page">
+    <noscript><p class="form-msg is-error">Bu sahifa uchun JavaScript yoqilgan bo'lishi kerak.</p></noscript>
+
+    <header class="banner">
+      <div class="banner-text">
+        <p class="banner-kicker">Profil</p>
+        <h1 class="banner-title">Mening profilim</h1>
+        <p class="banner-sub">Ismingiz va darajangizni shu yerda o'zgartira olasiz.</p>
+      </div>
+      <div class="banner-art">
+        <picture>
+          <source type="image/webp" srcset="public/images/ticket-robot-400.webp 400w, public/images/ticket-robot-600.webp 600w" sizes="(min-width: 1024px) 260px, (min-width: 640px) 220px, 160px">
+          <img src="public/images/ticket-robot.png" width="600" height="518" alt="Qo'lida oltin RoboSTEAM chiptasini tutgan do'stona robot" decoding="async">
+        </picture>
+      </div>
+    </header>
+
+    <section class="panel" aria-labelledby="profile-h">
+      <h2 class="section-h" id="profile-h">Shaxsiy ma'lumotlar</h2>
+      <form class="auth-form" id="profile-form" novalidate>
+        <div class="field">
+          <label for="full-name">Ism va familiya</label>
+          <input id="full-name" name="full_name" type="text" autocomplete="name" maxlength="80" required>
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" readonly aria-describedby="email-hint">
+          <p class="field-hint" id="email-hint">Email manzilni hozircha o'zgartirib bo'lmaydi.</p>
+        </div>
+        <div class="field">
+          <label for="level">Darajangiz</label>
+          <select id="level" name="level" required>
+            <option value="">Tanlang…</option>
+            <option value="beginner">Boshlovchi</option>
+            <option value="some-electronics">Elektronikani biroz biladi</option>
+            <option value="builder">Allaqachon narsalar yasaydi</option>
+          </select>
+        </div>
+        <p class="profile-since">A'zo bo'lgan sana: <strong data-member-since>—</strong></p>
+        <p class="form-msg" id="form-msg" role="status" hidden></p>
+        <button class="btn blue" type="submit">Saqlash</button>
+      </form>
+    </section>
+  </div>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="uz-Latn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- media-src: lesson videos will be signed URLs from Supabase Storage (see getVideoUrl in js/academy.js) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<title>Darslar – RoboSTEAM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<noscript><style>body[data-guard] main { visibility: visible; }</style></noscript>
+<script defer src="js/config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/dist/umd/supabase.js" integrity="sha384-K1nraABOP/zFehpLIUksXebbs7jMpB8gYMlb+uhVKZcWT/9Vkq1+qhv6ndC+1Yuz" crossorigin="anonymous"></script>
+<script defer src="js/supabase-client.js"></script>
+<script defer src="js/auth.js"></script>
+<script defer src="js/app.js"></script>
+<script defer src="js/academy.js"></script>
+</head>
+<!-- data-guard hides <main> until js/app.js has confirmed a session (otherwise it redirects to login.html) -->
+<body class="app" data-page="academy" data-guard>
+<script src="js/shell.js"></script>
+
+<main class="app-main" id="main">
+  <div class="page">
+    <header class="banner is-compact">
+      <div class="banner-text">
+        <p class="banner-kicker">Akademiya</p>
+        <h1 class="banner-title">Darslar</h1>
+        <p class="banner-sub">Videoni tomosha qiling, izohlarni o'qing va darsni tugatilgan deb belgilang.</p>
+        <div class="banner-actions">
+          <button class="btn ghost modules-btn" type="button" data-drawer-open aria-haspopup="dialog" aria-controls="lesson-drawer" aria-expanded="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>Modullar
+          </button>
+        </div>
+      </div>
+      <div class="banner-art is-peek">
+        <picture>
+          <source type="image/webp" srcset="public/images/astronaut-register-480.webp 480w, public/images/astronaut-register-960.webp 960w" sizes="(min-width: 1024px) 260px, (min-width: 640px) 220px, 160px">
+          <img src="public/images/astronaut-register.png" width="960" height="869" alt="Qo'llari orasida golografik sxema panellarini yig'ayotgan kosmonavt" decoding="async">
+        </picture>
+      </div>
+    </header>
+
+    <noscript><p class="form-msg is-error">Akademiya uchun JavaScript yoqilgan bo'lishi kerak.</p></noscript>
+    <p class="acad-state" data-view="loading" role="status">Yuklanmoqda…</p>
+    <div class="acad-state" data-view="error" hidden>
+      <p class="form-msg is-error" role="alert">Darslarni yuklab bo'lmadi. Internet aloqasini tekshiring va qayta urinib ko'ring.</p>
+      <button class="btn" type="button" data-retry>Qayta urinish</button>
+    </div>
+    <div class="acad-state" data-view="empty" hidden>
+      <h2 class="acad-title">Darslar tayyorlanmoqda</h2>
+      <p>Hozircha ochiq darslar yo'q. Tez orada qo'shiladi!</p>
+    </div>
+
+    <article class="lesson-view" data-view="lesson" hidden>
+      <p class="lesson-crumb" data-crumb></p>
+      <h2 class="acad-title" data-title tabindex="-1"></h2>
+
+      <div class="player">
+        <video data-video preload="metadata" playsinline poster="public/images/lesson-poster.svg"></video>
+        <p class="player-soon" data-video-soon>Video tez orada qo'shiladi</p>
+      </div>
+
+      <div class="lesson-body" data-body></div>
+
+      <div class="lesson-actions">
+        <button class="btn blue" type="button" data-complete>Tugatildi deb belgilash</button>
+        <p class="form-msg" data-complete-msg role="alert" hidden></p>
+      </div>
+
+      <nav class="lesson-pager" aria-label="Darslar orasida">
+        <a class="btn ghost" data-prev aria-disabled="true"><span aria-hidden="true">←</span> Oldingi dars</a>
+        <a class="btn" data-next aria-disabled="true">Keyingi dars <span aria-hidden="true">→</span></a>
+      </nav>
+      <p class="pager-hint" data-next-hint hidden></p>
+    </article>
+  </div>
+</main>
+
+</body>
+</html>

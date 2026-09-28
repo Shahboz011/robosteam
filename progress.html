@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="uz-Latn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<title>Natijalar – RoboSTEAM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<noscript><style>body[data-guard] main { visibility: visible; }</style></noscript>
+<script defer src="js/config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/dist/umd/supabase.js" integrity="sha384-K1nraABOP/zFehpLIUksXebbs7jMpB8gYMlb+uhVKZcWT/9Vkq1+qhv6ndC+1Yuz" crossorigin="anonymous"></script>
+<script defer src="js/supabase-client.js"></script>
+<script defer src="js/auth.js"></script>
+<script defer src="js/app.js"></script>
+<script defer src="js/academy.js"></script>
+</head>
+<!-- data-guard hides <main> until js/app.js has confirmed a session (otherwise it redirects to login.html) -->
+<body class="app" data-page="progress" data-guard>
+<script src="js/shell.js"></script>
+
+<main class="app-main" id="main">
+  <div class="page">
+    <noscript><p class="form-msg is-error">Bu sahifa uchun JavaScript yoqilgan bo'lishi kerak.</p></noscript>
+
+    <header class="banner">
+      <div class="banner-text">
+        <p class="banner-kicker">Natijalar</p>
+        <h1 class="banner-title">Natijalarim</h1>
+        <p class="banner-sub">Qaysi modulda qanchalik oldinga siljiganingizni shu yerda ko'rasiz.</p>
+      </div>
+      <div class="banner-art is-peek">
+        <picture>
+          <source type="image/webp" srcset="public/images/astronaut-login-480.webp 480w, public/images/astronaut-login-960.webp 960w" sizes="(min-width: 1024px) 260px, (min-width: 640px) 220px, 160px">
+          <img src="public/images/astronaut-login.png" width="960" height="869" alt="Qo'lidagi shaffof sxema panelida natijalarini tekshirayotgan kosmonavt" decoding="async">
+        </picture>
+      </div>
+    </header>
+
+    <p class="acad-state" data-view="loading" role="status">Yuklanmoqda…</p>
+    <div class="acad-state" data-view="error" hidden>
+      <p class="form-msg is-error" role="alert">Natijalarni yuklab bo'lmadi. Internet aloqasini tekshiring va qayta urinib ko'ring.</p>
+      <button class="btn" type="button" data-retry>Qayta urinish</button>
+    </div>
+
+    <div data-view="progress" hidden>
+      <div class="empty-card" data-progress-empty hidden>
+        <h2>Hali natija yo'q</h2>
+        <p>Birinchi darsni tugatganingizdan so'ng natijalaringiz shu yerda paydo bo'ladi.</p>
+        <a class="btn blue" href="academy.html">Birinchi darsni boshlash</a>
+      </div>
+
+      <section class="prog-total" aria-labelledby="prog-total-h">
+        <h2 id="prog-total-h" class="sr-only">Umumiy natija</h2>
+        <p class="prog-big" data-total-pct>0%</p>
+        <p class="prog-line" data-total-line></p>
+        <div class="bar is-big" role="progressbar" aria-label="Umumiy natija" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-total-bar><i></i></div>
+        <a class="btn" href="academy.html">Darsni davom ettirish</a>
+      </section>
+
+      <h2 class="section-h">Modullar bo'yicha</h2>
+      <ol class="prog-list" data-module-progress></ol>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>
