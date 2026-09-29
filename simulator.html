@@ -3,13 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex">
 <title>Simulyator – RoboSTEAM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.css" integrity="sha384-zaeBlB/vwYsDRSlFajnDd7OydJ0cWk+c2OWybl3eSUf6hW2EbhlCsQPqKr3gkznT" crossorigin="anonymous">
 <link rel="stylesheet" href="styles.css">
 <noscript><style>body[data-guard] main { visibility: visible; }</style></noscript>
 <script defer src="js/config.js"></script>
@@ -17,89 +18,87 @@
 <script defer src="js/supabase-client.js"></script>
 <script defer src="js/auth.js"></script>
 <script defer src="js/app.js"></script>
+<!-- Simulator: CodeMirror 5 (optional: the page falls back to the plain textarea), then the page module.
+     avr8js is bundled into js/vendor/ (compile-service: npm run vendor); sketches compile at /api/compile. -->
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js" integrity="sha384-BEgQlz0fN4eG0n4jipmUe+nOg65hPY7L0E/lPVRaOPdzAfLPGEbXnpAodHtSnlwM" crossorigin="anonymous"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/clike/clike.min.js" integrity="sha384-o9m634t2Hy35pPNKd9Xe16ntbSw11jCOuKPDrzQGXI8k87L2JZthaA3rwmJjnF7Z" crossorigin="anonymous"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/edit/matchbrackets.min.js" integrity="sha384-LjCI3E8qhhxXZvu7+FCvqx9eZYSowFvuJ7z54KsgI/BDPGKEuysqCg/vYiKHvC4Y" crossorigin="anonymous"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/edit/closebrackets.min.js" integrity="sha384-69mJoUoPPF/C7qPs6lLjvXvrt6w225+rmxWqGO3a1glVjITdnnwPQOtG9FRTd2Ni" crossorigin="anonymous"></script>
+<script type="module" src="js/simulator/simulator.js"></script>
 </head>
 <!-- data-guard hides <main> until js/app.js has confirmed a session (otherwise it redirects to login.html) -->
 <body class="app" data-page="simulator" data-guard>
 <script src="js/shell.js"></script>
 
 <main class="app-main" id="main">
-  <div class="page">
+  <div class="page page-wide">
     <noscript><p class="form-msg is-error">Bu sahifa uchun JavaScript yoqilgan bo'lishi kerak.</p></noscript>
 
-    <header class="banner">
-      <div class="banner-text">
-        <p class="banner-kicker">Laboratoriya</p>
-        <h1 class="banner-title">Simulyator</h1>
-        <p class="banner-sub">Sxemani brauzerning o'zida yig'ib, dasturlay olasiz. Hech qanday detal kerak emas.</p>
-        <p class="banner-actions"><span class="soon">Tez orada</span></p>
-      </div>
-      <div class="banner-art">
-        <picture>
-          <source type="image/webp" srcset="public/images/rover-exploded-300.webp 300w, public/images/rover-exploded-480.webp 480w" sizes="(min-width: 1024px) 260px, (min-width: 640px) 220px, 160px">
-          <img src="public/images/rover-exploded.png" width="480" height="788" alt="Qismlarga ajratilgan RoboSTEAM roveri: kamera, qopqoq, korpus, motor va g'ildirakli shassi" decoding="async">
-        </picture>
-      </div>
-    </header>
-
-    <section class="sim-preview" aria-labelledby="sim-h">
-      <div class="sim-preview-text">
-        <h2 class="section-h" id="sim-h">Qanday ishlaydi?</h2>
-        <ul class="sim-points">
-          <li>Plata, simlar, LED va rezistorlarni sichqoncha yoki barmoq bilan joylashtirasiz.</li>
-          <li>Kodni shu yerning o'zida yozasiz va bir tugma bilan ishga tushirasiz.</li>
-          <li>Xato qilsangiz, hech narsa kuymaydi: qayta yig'ib, yana sinab ko'rasiz.</li>
-        </ul>
-        <p class="empty-note">Simulyator ustida ishlayapmiz. Tayyor bo'lishi bilan shu sahifada ochiladi.</p>
-      </div>
-      <div class="sim-panel" role="img" aria-label="Simulyator ko'rinishi namunasi: Arduino plata, simlar, LED va kod oynasi">
-        <div class="sim-bar" aria-hidden="true"><i></i><i></i><i></i><span>birinchi-sxema.ino</span><span class="soon">Tez orada</span></div>
-        <div class="sim-body" aria-hidden="true">
-          <svg class="sim-board" viewBox="0 0 320 230">
-            <defs>
-              <pattern id="sim-holes" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="6" cy="6" r="1.6" class="hole"/></pattern>
-              <radialGradient id="sim-glow"><stop offset="0" stop-color="#FF6B57" stop-opacity=".75"/><stop offset="1" stop-color="#FF6B57" stop-opacity="0"/></radialGradient>
-            </defs>
-            <!-- breadboard -->
-            <rect x="178" y="18" width="126" height="194" rx="10" class="bb"/>
-            <rect x="184" y="24" width="114" height="182" rx="6" fill="url(#sim-holes)"/>
-            <line x1="241" y1="24" x2="241" y2="206" class="bb-gap"/>
-            <!-- microcontroller board -->
-            <rect x="16" y="44" width="128" height="150" rx="12" class="mcu"/>
-            <rect x="30" y="54" width="100" height="10" rx="3" class="pins"/>
-            <rect x="30" y="174" width="100" height="10" rx="3" class="pins"/>
-            <rect x="52" y="96" width="56" height="42" rx="5" class="chip"/>
-            <text x="80" y="122" class="chip-label">MCU</text>
-            <text x="36" y="80" class="pin-label">D13</text>
-            <text x="100" y="80" class="pin-label">GND</text>
-            <!-- wires -->
-            <path d="M44 59 C 44 20, 150 12, 210 60" class="wire w1"/>
-            <path d="M112 59 C 120 30, 170 150, 270 150" class="wire w2"/>
-            <!-- resistor -->
-            <line x1="210" y1="60" x2="210" y2="72" class="leg"/>
-            <rect x="203" y="72" width="14" height="30" rx="5" class="res"/>
-            <rect x="203" y="80" width="14" height="3" class="band"/><rect x="203" y="88" width="14" height="3" class="band"/>
-            <line x1="210" y1="102" x2="210" y2="112" class="leg"/>
-            <line x1="210" y1="112" x2="258" y2="112" class="leg"/>
-            <!-- LED -->
-            <circle cx="264" cy="96" r="26" fill="url(#sim-glow)" class="sim-glow"/>
-            <line x1="258" y1="104" x2="258" y2="112" class="leg"/>
-            <line x1="270" y1="104" x2="270" y2="150" class="leg"/>
-            <path d="M254 104 V92 a10 10 0 0 1 20 0 V104 Z" class="led"/>
-          </svg>
-          <pre class="sim-code"><code><span class="c">// LED'ni yoqib-o'chirish</span>
-<span class="k">void</span> setup() {
-  pinMode(<span class="n">13</span>, OUTPUT);
-}
-
-<span class="k">void</span> loop() {
-  digitalWrite(<span class="n">13</span>, HIGH);
-  delay(<span class="n">500</span>);
-  digitalWrite(<span class="n">13</span>, LOW);
-  delay(<span class="n">500</span>);
-}</code></pre>
+    <!-- Gallery view (no #hash). Cards are rendered from js/simulator/projects.js. -->
+    <div data-view="gallery">
+      <header class="banner">
+        <div class="banner-text">
+          <p class="banner-kicker">Laboratoriya</p>
+          <h1 class="banner-title" tabindex="-1">Simulyator</h1>
+          <p class="banner-sub">Loyihani tanlang: sxema va kod tayyor holda ochiladi. Kod haqiqiy kompilyatorda yig'iladi va brauzerdagi mikrokontroller emulyatorida bajariladi.</p>
         </div>
+        <div class="banner-art">
+          <picture>
+            <!-- Cut out of src/academy-imgs/Robot_assembling_glowing_breadbo…_*.jpg (white background removed): src/academy-imgs/simulyator-mascot.png -->
+            <source type="image/webp" srcset="public/images/simulyator-mascot-240.webp 240w, public/images/simulyator-mascot-480.webp 480w" sizes="(min-width: 1024px) 174px, (min-width: 640px) 133px, 108px">
+            <img src="public/images/simulyator-mascot.png" width="480" height="509" alt="Maketlash platasida yonib turgan LED'li sxemani yig'ayotgan RoboSTEAM roboti" loading="lazy" decoding="async">
+          </picture>
+        </div>
+      </header>
+      <h2 class="section-h" id="proj-h">Loyihalar</h2>
+      <ul class="proj-grid" data-gallery aria-labelledby="proj-h"></ul>
+    </div>
+
+    <!-- Editor view (#<project id>) -->
+    <div data-view="editor" hidden>
+      <div class="sim-top">
+        <a class="btn ghost sm" href="#" data-back>← Loyihalar</a>
+        <h1 class="sim-title" data-project-title tabindex="-1"></h1>
+        <span data-project-level></span>
       </div>
-    </section>
+
+      <div class="sim-work">
+        <section class="sim-card" aria-labelledby="sim-circuit-h">
+          <div class="sim-head">
+            <h2 class="sim-h" id="sim-circuit-h">Sxema</h2>
+            <div class="sim-tools">
+              <button class="btn ghost sm" type="button" data-example>Namuna sxema</button>
+              <button class="btn ghost sm" type="button" data-clear>Simlarni tozalash</button>
+            </div>
+          </div>
+          <p class="sim-hint" id="sim-hint">Sim tortish uchun bitta pinni, keyin ikkinchisini bosing. Simni o'chirish uchun uning ustiga bosing. Dastur ishlayotganda tugmani bosib turing.</p>
+          <div class="sim-canvas-wrap">
+            <svg class="sim-canvas" data-circuit role="group" aria-label="Sxema: Arduino Uno, rezistor, LED va tugma" aria-describedby="sim-hint"></svg>
+          </div>
+          <ul class="sim-warnings" data-warnings hidden></ul>
+        </section>
+
+        <section class="sim-card" aria-labelledby="sim-code-h">
+          <div class="sim-head">
+            <h2 class="sim-h" id="sim-code-h">Kod <span class="sim-file">sketch.ino</span></h2>
+            <div class="sim-tools">
+              <button class="btn blue sm" type="button" data-run title="Ctrl + Enter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg>Ishga tushirish</button>
+              <button class="btn ghost sm" type="button" data-stop disabled><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>To'xtatish</button>
+            </div>
+          </div>
+          <p class="sim-state"><span class="sim-status" data-status role="status">To'xtatilgan</span><span class="sim-time" data-time></span></p>
+          <label class="sr-only" for="sim-code">Arduino kodi</label>
+          <textarea class="sim-textarea" id="sim-code" data-code spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
+          <div class="form-msg sim-result" data-result role="alert" hidden></div>
+          <div class="sim-serial-head">
+            <h3 class="sim-h3" id="sim-serial-h">Serial monitor</h3>
+            <button class="link-btn" type="button" data-serial-clear>Tozalash</button>
+          </div>
+          <pre class="sim-serial" data-serial tabindex="0" aria-labelledby="sim-serial-h"></pre>
+          <p class="sim-foot"><button class="link-btn" type="button" data-reset-code>Boshlang'ich kodni qaytarish</button></p>
+        </section>
+      </div>
+    </div>
   </div>
 </main>
 

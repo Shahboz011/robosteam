@@ -33,10 +33,11 @@
         <h1 class="banner-title">Salom, <span data-user-name>do'stim</span>!</h1>
         <p class="banner-sub">RoboSTEAM akademiyasiga xush kelibsiz. To'xtagan joyingizdan davom eting.</p>
       </div>
-      <div class="banner-art is-peek">
+      <div class="banner-art">
         <picture>
-          <source srcset="public/images/robotic-arm.webp" type="image/webp">
-          <img src="public/images/robotic-arm.png" width="480" height="577" alt="Qo'lida detal tutgan oq-ko'k RoboSTEAM robot qo'li" decoding="async">
+          <!-- Cut out of src/academy-imgs/Robot_mascot_welcoming_in_pose_*.jpg (white background and side icons removed): src/academy-imgs/bosh-sahifa-mascot.png -->
+          <source type="image/webp" srcset="public/images/bosh-sahifa-mascot-240.webp 240w, public/images/bosh-sahifa-mascot-480.webp 480w" sizes="(min-width: 1024px) 207px, (min-width: 640px) 159px, 129px">
+          <img src="public/images/bosh-sahifa-mascot.png" width="480" height="427" alt="Qo'llarini keng ochib salom berayotgan RoboSTEAM roboti" loading="lazy" decoding="async">
         </picture>
       </div>
     </header>

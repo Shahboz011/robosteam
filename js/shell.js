@@ -49,7 +49,7 @@
     { id: 'dashboard', href: 'dashboard.html' },
     { id: 'academy', href: 'academy.html' },
     { id: 'progress', href: 'progress.html' },
-    { id: 'simulator', href: 'simulator.html', soon: true },
+    { id: 'simulator', href: 'simulator.html' },
     { id: 'profile', href: 'profile.html' },
     { id: 'settings', href: 'settings.html' },
   ];
@@ -123,7 +123,7 @@
       '<div class="sheet-grab" aria-hidden="true"><i></i></div>' +
       '<h2 class="sheet-h" id="more-sheet-h">' + T.moreTitle + '</h2>' +
       '<ul class="sheet-list">' +
-        '<li><a class="sheet-item" href="simulator.html"' + current('simulator') + '>' + svg('simulator') + '<span>' + T.pages.simulator + '</span><span class="soon">' + T.soon + '</span></a></li>' +
+        '<li><a class="sheet-item" href="simulator.html"' + current('simulator') + '>' + svg('simulator') + '<span>' + T.pages.simulator + '</span></a></li>' +
         '<li><a class="sheet-item" href="settings.html"' + current('settings') + '>' + svg('settings') + '<span>' + T.pages.settings + '</span></a></li>' +
         '<li><button class="sheet-item is-danger" type="button" data-logout>' + svg('logout') + '<span>' + T.logout + '</span></button></li>' +
       '</ul>' +

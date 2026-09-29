@@ -1,0 +1,22 @@
+{
+  "name": "robosteam-compile-service",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Local dev server for the RoboSTEAM simulator: serves the site and compiles Arduino sketches with arduino-cli at /api/compile.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "vendor": "esbuild node_modules/avr8js/dist/esm/index.js --bundle --format=esm --minify --legal-comments=inline --banner:js=\"/* avr8js (MIT, https://github.com/wokwi/avr8js), bundled by compile-service: npm run vendor */\" --outfile=../js/vendor/avr8js.js",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "avr8js": "^0.21.1",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}
