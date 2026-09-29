@@ -44,9 +44,10 @@ const T = {
 };
 const store = (id) => ({ code: 'robosteam.sim.' + id + '.code', wires: 'robosteam.sim.' + id + '.wires' });
 const SERIAL_MAX = 20000;
-// Where sketches are compiled: COMPILE_URL in js/config.js (the hosted compile-service), else this site's own
-// /api/compile (compile-service/server.js serves both when you run it locally).
-const COMPILE_BASE = ((window.ROBOSTEAM_CONFIG || {}).COMPILE_URL || '').trim().replace(/\/+$/, '');
+// Where sketches are compiled: COMPILE_URL in js/config.js (the hosted compile-service), except on localhost,
+// where compile-service/server.js serves both the page and /api/compile, so local work never needs the internet.
+const LOCAL_DEV = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+const COMPILE_BASE = LOCAL_DEV ? '' : ((window.ROBOSTEAM_CONFIG || {}).COMPILE_URL || '').trim().replace(/\/+$/, '');
 const COMPILE_URL = COMPILE_BASE ? COMPILE_BASE + '/api/compile' : 'api/compile';
 const COMPILE_TIMEOUT_MS = 120000;
 
