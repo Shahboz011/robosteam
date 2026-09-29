@@ -6,15 +6,16 @@ services:
     runtime: docker
     plan: free
     region: frankfurt
-    rootDir: compile-service              # only changes in this folder trigger a redeploy
+    # Paths are from the repo root. (No rootDir: with one set, Render resolved these relative to it.)
     dockerfilePath: ./compile-service/Dockerfile
     dockerContext: ./compile-service
+    buildFilter:                          # only changes in compile-service/ trigger a redeploy
+      paths:
+        - compile-service/**
     healthCheckPath: /api/health
     autoDeploy: true
+    # robosteam.uz and www.robosteam.uz are always allowed (server.js). To allow more pages, e.g. a Vercel
+    # preview URL, add an ALLOWED_ORIGINS variable (comma-separated) in the Render dashboard.
     envVars:
-      # Pages allowed to call the service besides robosteam.uz / www.robosteam.uz (comma-separated),
-      # e.g. a Vercel preview URL. Leave empty for production only.
-      - key: ALLOWED_ORIGINS
-        value: ""
       - key: RATE_PER_MIN
         value: "30"
