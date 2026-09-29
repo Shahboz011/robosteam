@@ -1,16 +1,23 @@
 /* ATmega328P (Arduino Uno) emulation on avr8js: loads a compiled Intel HEX, runs it in real time on
-   requestAnimationFrame, and exposes Uno digital pins D0-D13 plus the Serial (USART0) output.
-   Nothing here is simplified: the CPU executes the real compiled machine code, and delay()/millis() come
-   from the emulated Timer0 at 16 MHz. */
+   requestAnimationFrame, and exposes Uno digital pins D0-D13, analog inputs A0-A5 and the Serial (USART0)
+   output. Nothing here is simplified: the CPU executes the real compiled machine code, delay()/millis() come
+   from the emulated Timer0 at 16 MHz, analogWrite() is the real timer PWM and tone() the real Timer2 toggle.
+
+   The page redraws ~60 times a second, far too slowly to see a 490 Hz PWM signal or a 440 Hz tone by sampling
+   pin levels, so every pin change is recorded with its CPU cycle and sample() turns each frame into
+   { duty, freq } per pin: duty = share of the frame the pin was HIGH (LED brightness), freq = its switching
+   frequency (buzzer pitch). */
 import {
   CPU, avrInstruction, AVRTimer, timer0Config, timer1Config, timer2Config,
-  AVRIOPort, portBConfig, portCConfig, portDConfig, AVRUSART, usart0Config, PinState,
+  AVRIOPort, portBConfig, portCConfig, portDConfig, AVRUSART, usart0Config, AVRADC, adcConfig, PinState,
 } from '../vendor/avr8js.js';
 
 export { PinState };
 export const CLOCK_HZ = 16e6;
-const FLASH_BYTES = 0x8000;   // 32 KB
-const MAX_FRAME_MS = 50;      // after a stall (background tab, breakpoint) skip ahead instead of catching up
+const FLASH_BYTES = 0x8000;       // 32 KB
+const MAX_FRAME_MS = 50;          // after a stall (background tab, breakpoint) skip ahead instead of catching up
+const MAX_PERIOD = CLOCK_HZ / 40; // rises more than 25 ms apart are a pause (between notes), not a period
+const MIN_HOLD = CLOCK_HZ / 500;  // a pin quiet for 1.5 periods (at least 2 ms) has stopped oscillating
 
 /* Intel HEX -> flash image. Record types 00 (data), 01 (EOF), 02/04 (segment/linear address). */
 export function parseHex(text) {
@@ -45,18 +52,68 @@ export class AVRRunner {
     this.timers = [timer0Config, timer1Config, timer2Config].map((c) => new AVRTimer(this.cpu, c));
     this.ports = { B: new AVRIOPort(this.cpu, portBConfig), C: new AVRIOPort(this.cpu, portCConfig), D: new AVRIOPort(this.cpu, portDConfig) };
     this.usart = new AVRUSART(this.cpu, usart0Config, CLOCK_HZ);
+    this.adc = new AVRADC(this.cpu, adcConfig); // analogRead(A0..A5) reads adc.channelValues[0..5] in volts
     this.external = new Map(); // digital pin -> level forced by the circuit (absent = floating)
     this.applied = new Map();  // digital pin -> level last fed into the PIN register
-    // avr8js has no internal pull-ups: re-evaluate floating pins synchronously whenever the program writes
-    // DDR/PORT, so the first digitalRead() after pinMode(INPUT_PULLUP) already sees HIGH.
-    this.ports.D.addListener(() => { for (let d = 0; d < 8; d++) this.applyInput(d); });
-    this.ports.B.addListener(() => { for (let d = 8; d < 14; d++) this.applyInput(d); });
+    // Per-pin activity for sample(): current level, cycles spent HIGH, rising edges and their spacing.
+    this.act = Array.from({ length: 14 }, () => ({ level: 0, since: 0, high: 0, lastRise: -1, lastPeriod: 0, periodSum: 0, periods: 0, duty: 0, freq: 0 }));
+    this.windowStart = 0;
+    this.watch(this.ports.D, 0);
+    this.watch(this.ports.B, 8);
     this.raf = 0;
     this.last = 0;
     this.onFrame = null;     // called after every frame's worth of cycles
     this.onSerial = null;    // called with each transmitted byte as a 1-char string
     this.usart.onByteTransmit = (b) => { if (this.onSerial) this.onSerial(String.fromCharCode(b)); };
   }
+
+  watch(port, base) {
+    const count = base === 0 ? 8 : 6;
+    let last = 0;
+    port.addListener((value) => {
+      // avr8js has no internal pull-ups: re-evaluate floating pins synchronously whenever the program writes
+      // DDR/PORT, so the first digitalRead() after pinMode(INPUT_PULLUP) already sees HIGH.
+      for (let b = 0; b < count; b++) this.applyInput(base + b);
+      const changed = value ^ last;
+      last = value;
+      if (!changed) return;
+      const t = this.cpu.cycles;
+      for (let b = 0; b < count; b++) if ((changed >> b) & 1) this.edge(base + b, (value >> b) & 1, t);
+    });
+  }
+
+  edge(d, level, t) {
+    const a = this.act[d];
+    if (a.level) a.high += t - a.since;
+    a.since = t;
+    a.level = level;
+    if (level) {
+      const p = a.lastRise >= 0 ? t - a.lastRise : 0;
+      if (p > 0 && p <= MAX_PERIOD) { a.periodSum += p; a.periods++; a.lastPeriod = p; }
+      else a.lastPeriod = 0; // first rise after a pause
+      a.lastRise = t;
+    }
+  }
+
+  /* Close the current measuring window (normally once per frame) and update every pin's duty and freq. */
+  sample() {
+    const t = this.cpu.cycles, span = t - this.windowStart;
+    for (const a of this.act) {
+      if (a.level) a.high += t - a.since;
+      a.since = t;
+      a.duty = span > 0 ? a.high / span : a.level;
+      if (a.periods) a.freq = CLOCK_HZ / (a.periodSum / a.periods);
+      if (!a.lastPeriod || t - a.lastRise > Math.max(1.5 * a.lastPeriod, MIN_HOLD)) a.freq = 0;
+      a.high = 0; a.periodSum = 0; a.periods = 0;
+    }
+    this.windowStart = t;
+  }
+
+  /* { duty: 0..1, freq: Hz } of an output pin over the last sample() window. */
+  activity(d) { const a = this.act[d]; return { duty: a.duty, freq: a.freq }; }
+
+  /* Voltage (0..5 V) the circuit puts on analog input A<ch>. */
+  setAnalog(ch, volts) { this.adc.channelValues[ch] = volts; }
 
   /* Execute until the CPU clock has advanced by `cycles`. */
   runCycles(cycles) {
@@ -100,6 +157,7 @@ export class AVRRunner {
       const dt = Math.min(now - this.last, MAX_FRAME_MS);
       this.last = now;
       this.runCycles(Math.round(dt * (CLOCK_HZ / 1000)));
+      this.sample();
       if (this.onFrame) this.onFrame(this);
       this.raf = requestAnimationFrame(frame);
     };

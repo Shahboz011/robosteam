@@ -84,6 +84,7 @@
             <div class="sim-tools">
               <button class="btn blue sm" type="button" data-run title="Ctrl + Enter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg>Ishga tushirish</button>
               <button class="btn ghost sm" type="button" data-stop disabled><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>To'xtatish</button>
+              <button class="btn ghost sm" type="button" data-mute hidden aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path data-mute-waves d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-mute-label>Ovoz</span></button>
             </div>
           </div>
           <p class="sim-state"><span class="sim-status" data-status role="status">To'xtatilgan</span><span class="sim-time" data-time></span></p>
@@ -98,7 +99,16 @@
           <p class="sim-foot"><button class="link-btn" type="button" data-reset-code>Boshlang'ich kodni qaytarish</button></p>
         </section>
       </div>
+
     </div>
+  </div>
+  <!-- Phones only (CSS), editor view only (JS toggles hidden): Run/Stop stay on screen while you look at the circuit.
+       Outside .page on purpose: .page children animate transform, which would anchor position:fixed to them.
+       Same data-* hooks as the code card; this status copy is aria-hidden so screen readers hear it once. -->
+  <div class="sim-runbar" data-runbar hidden role="group" aria-label="Dasturni boshqarish">
+    <p class="sim-state" aria-hidden="true"><span class="sim-status" data-status>To'xtatilgan</span><span class="sim-time" data-time></span></p>
+    <button class="btn blue sm" type="button" data-run><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg>Ishga tushirish</button>
+    <button class="btn ghost sm" type="button" data-stop disabled aria-label="To'xtatish"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg></button>
   </div>
 </main>
 

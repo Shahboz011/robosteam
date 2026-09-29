@@ -549,10 +549,29 @@ a.lesson:hover { background: color-mix(in srgb, var(--blue) 10%, transparent); }
 .sim-canvas .b2 { fill: #7A4A21; }
 .sim-canvas .b3 { fill: #C9A43A; }
 .sim-canvas .part-label { fill: var(--ink); font: 700 13px var(--body); text-anchor: middle; }
-.sim-canvas .led-body, .sim-canvas .led-rim { fill: #A8392F; stroke: #16123F; stroke-width: 2.5; }
-.sim-canvas .led-glow { opacity: 0; pointer-events: none; }
-.sim-canvas .led-part.is-on .led-glow { opacity: 1; }
-.sim-canvas .led-part.is-on .led-body, .sim-canvas .led-part.is-on .led-rim { fill: #FF7A63; }
+/* LEDs: --b (0..1, set per frame) is the brightness; analogWrite() PWM gives values in between */
+.sim-canvas .led-part { --off: #A8392F; --on: #FF7A63; }
+.sim-canvas .led-part.is-yellow { --off: #8C6D12; --on: #FFE066; }
+.sim-canvas .led-part.is-green { --off: #1C6B4F; --on: #5CF5BE; }
+.sim-canvas .led-body, .sim-canvas .led-rim { fill: var(--off); stroke: #16123F; stroke-width: 2.5; }
+.sim-canvas .led-lit { fill: var(--on); opacity: var(--b, 0); pointer-events: none; }
+.sim-canvas .led-glow { opacity: var(--b, 0); pointer-events: none; }
+/* Potentiometer: drag the knob (or arrow keys) */
+.sim-canvas .pot-body { fill: #2F6FD6; stroke: #16123F; stroke-width: 2.5; }
+.sim-canvas .pot-knob { cursor: grab; touch-action: none; }
+.sim-canvas .pot-knob:active { cursor: grabbing; }
+.sim-canvas .pot-knob:focus { outline: none; }
+.sim-canvas .pot-hit { fill: transparent; }
+.sim-canvas .pot-cap { fill: #E6E4F0; stroke: #16123F; stroke-width: 2.5; }
+.sim-canvas .pot-pointer { stroke: #16123F; stroke-width: 5; stroke-linecap: round; }
+.sim-canvas .pot-knob:focus-visible .pot-cap { stroke: var(--blue); stroke-width: 4; }
+/* Buzzer: sound waves while it plays */
+.sim-canvas .bz-body { fill: #16123F; stroke: #0B0826; stroke-width: 2; }
+.sim-canvas .bz-ring { fill: none; stroke: #3A3570; stroke-width: 3; }
+.sim-canvas .bz-hole { fill: #0B0826; }
+.sim-canvas .bz-plus { fill: #fff; font: 700 14px var(--body); text-anchor: middle; }
+.sim-canvas .bz-wave { fill: none; stroke: var(--coral); stroke-width: 3; stroke-linecap: round; opacity: 0; transition: opacity .1s; }
+.sim-canvas .buzzer-part.is-on .bz-wave { opacity: 1; }
 .sim-canvas .btn-part { cursor: pointer; touch-action: none; }
 .sim-canvas .btn-base { fill: #16123F; }
 .sim-canvas .btn-cap { fill: var(--coral); stroke: #fff; stroke-width: 2; transform-box: fill-box; transform-origin: center; transition: transform .06s; }
@@ -599,6 +618,28 @@ a.lesson:hover { background: color-mix(in srgb, var(--blue) 10%, transparent); }
 .cm-s-robo .CodeMirror-matchingbracket { color: var(--yellow) !important; text-decoration: underline; }
 .cm-s-robo .cm-error-line { background: rgba(255, 107, 87, .25); }
 .sim-result pre { margin: 8px 0 0; max-height: 240px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: 500 .85rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+/* Compile errors: short Uzbek list (click a line to jump there), raw compiler output behind "Ko'proq" */
+.sim-errors { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; font-weight: 500; }
+.sim-errors li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.sim-errors code, .sim-result code { padding: 1px 6px; border-radius: 6px; background: color-mix(in srgb, var(--ink) 10%, transparent); font: 600 .9em ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.sim-err-line { flex: none; padding: 1px 10px; border: 2px solid var(--ink); border-radius: 999px; background: var(--card); color: var(--ink); font: 700 .82rem/1.5 var(--body); cursor: pointer; }
+.sim-err-line:hover { background: var(--yellow); color: var(--dark); }
+.sim-result details { margin-top: 12px; }
+.sim-result summary { cursor: pointer; font-weight: 700; font-size: .9rem; }
+
+/* Phones: a Run/Stop bar that stays above the tab bar while the editor is open (hidden on larger screens) */
+.sim-runbar { display: none; }
+@media (max-width: 639px) {
+  [data-view="editor"] { padding-bottom: 84px; } /* room so the bar never covers the last content */
+  .sim-runbar { display: flex; align-items: center; gap: 10px; position: fixed; z-index: 44; left: calc(env(safe-area-inset-left, 0px) + 12px); right: calc(env(safe-area-inset-right, 0px) + 12px);
+    bottom: calc(var(--tab-h) + env(safe-area-inset-bottom, 0px) + 10px); padding: 10px 12px; background: var(--card); color: var(--ink); border: var(--line); border-radius: 18px; box-shadow: 4px 4px 0 var(--ink); }
+  .sim-runbar .sim-state { flex: 1; min-width: 0; display: grid; gap: 0; font-size: .85rem; line-height: 1.3; }
+  .sim-runbar .sim-time { font-size: .8rem; }
+  .sim-runbar .btn { flex: none; }
+  .sim-runbar [data-stop] { padding-inline: 12px; }
+  .sim-runbar [data-stop] svg { margin-right: 0; }
+  body.has-overlay .sim-runbar { visibility: hidden; } /* "More" sheet open */
+}
 .sim-serial-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 4px; }
 .sim-serial { margin: 0; min-height: 110px; max-height: 220px; overflow: auto; padding: 12px 14px; background: #0E0B2E; color: var(--mint); border: var(--line); border-radius: 16px; font: 500 .85rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
 .sim-foot { font-size: .92rem; }

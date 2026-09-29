@@ -13,10 +13,10 @@
     "test": "node --test test/*.test.js"
   },
   "dependencies": {
-    "avr8js": "^0.21.1",
     "express": "^5.2.1"
   },
   "devDependencies": {
+    "avr8js": "^0.21.1",
     "esbuild": "^0.28.2"
   }
 }

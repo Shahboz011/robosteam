@@ -1,6 +1,7 @@
 /* Simulator projects: the gallery and each project's circuit and code come from this array.
-   Adding a project = one entry here. A ready project needs `parts` (types from circuit.js: resistor, led, button,
-   placed in the 660x380 canvas), default `wires` (pin ids "<part id>.<pin>" or "uno.<pin>") and `code`.
+   Adding a project = one entry here. A ready project needs `parts` (types from circuit.js, placed in the 660x380
+   canvas: resistor [rot: 90 stands it up], led [color: red | yellow | green], button, pot [value 0..1], buzzer),
+   default `wires` (pin ids "<part id>.<pin>" or "uno.<pin>", e.g. "uno.a0", "uno.gnd3") and `code`.
    Leave `ready: false` until then: the card is shown dimmed with "Tez orada". */
 
 export const LEVELS = { beginner: "Boshlang'ich", intermediate: "O'rta" };
@@ -73,6 +74,104 @@ void loop() {
 }
 `;
 
+const TRAFFIC_CODE = `// RoboSTEAM: svetofor
+// Har bir LED: pin -> LED (+) ... LED (-) -> rezistor -> GND
+//   qizil: 12-pin, sariq: 11-pin, yashil: 10-pin
+
+const int QIZIL = 12;
+const int SARIQ = 11;
+const int YASHIL = 10;
+
+// Uchta chiroqni birdaniga o'rnatadi: 1 = yoniq, 0 = o'chiq
+void chiroqlar(int qizil, int sariq, int yashil) {
+  digitalWrite(QIZIL, qizil);
+  digitalWrite(SARIQ, sariq);
+  digitalWrite(YASHIL, yashil);
+}
+
+void setup() {
+  pinMode(QIZIL, OUTPUT);
+  pinMode(SARIQ, OUTPUT);
+  pinMode(YASHIL, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  Serial.println("Qizil: to'xtang!");
+  chiroqlar(1, 0, 0);
+  delay(3000);
+
+  Serial.println("Qizil + sariq: tayyorlaning");
+  chiroqlar(1, 1, 0);
+  delay(1000);
+
+  Serial.println("Yashil: yuring!");
+  chiroqlar(0, 0, 1);
+  delay(3000);
+
+  Serial.println("Sariq: ehtiyot bo'ling");
+  chiroqlar(0, 1, 0);
+  delay(1000);
+}
+`;
+
+const POT_CODE = `// RoboSTEAM: potentsiometr bilan LED yorqinligi
+// Potentsiometr: chap oyoq -> 5V, o'rta oyoq -> A0, o'ng oyoq -> GND
+// LED: 9-pin -> rezistor -> LED (+) ... LED (-) -> GND
+// Dastakni burang: A0 dagi qiymat va LED yorqinligi o'zgaradi.
+
+const int POT_PIN = A0;
+const int LED_PIN = 9;   // ~ belgili pinlar (3, 5, 6, 9, 10, 11) analogWrite() bilan ishlaydi
+
+void setup() {
+  pinMode(LED_PIN, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  int qiymat = analogRead(POT_PIN);               // 0 ... 1023
+  int yorqinlik = map(qiymat, 0, 1023, 0, 255);   // 0 ... 255
+  analogWrite(LED_PIN, yorqinlik);
+
+  Serial.print("Potentsiometr: ");
+  Serial.print(qiymat);
+  Serial.print("   Yorqinlik: ");
+  Serial.println(yorqinlik);
+  delay(200);
+}
+`;
+
+const MELODY_CODE = `// RoboSTEAM: buzzer bilan kuy
+// Buzzer: 8-pin -> buzzer (+) ... buzzer (-) -> GND
+// tone(pin, chastota, davomiylik) nota chaladi, noTone(pin) to'xtatadi.
+
+const int BUZZER = 8;
+
+// "Kichkina yulduzcha" kuyining boshi: chastotalar (Hz)
+int notalar[] = { 262, 262, 392, 392, 440, 440, 392, 349, 349, 330, 330, 294, 294, 262 };
+// Har bir notaning uzunligi (millisekund)
+int uzunlik[] = { 400, 400, 400, 400, 400, 400, 800, 400, 400, 400, 400, 400, 400, 800 };
+const int SONI = sizeof(notalar) / sizeof(notalar[0]);
+
+void setup() {
+  pinMode(BUZZER, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  Serial.println("Kuy boshlandi!");
+  for (int i = 0; i < SONI; i++) {
+    Serial.print("Nota: ");
+    Serial.print(notalar[i]);
+    Serial.println(" Hz");
+    tone(BUZZER, notalar[i], uzunlik[i] * 9 / 10);  // notalar orasida qisqa tanaffus
+    delay(uzunlik[i]);
+  }
+  noTone(BUZZER);
+  delay(1500);  // qaytadan chalishdan oldin dam olamiz
+}
+`;
+
 // ---------- the list (gallery order) ----------
 export const PROJECTS = [
   {
@@ -101,23 +200,47 @@ export const PROJECTS = [
     thumbnail: svg(uno() + wire('M36 32 C40 6 150 14 158 60', '#3D3BFF') + resistor(150, 66) + wire('M184 66 H196', '#FFB020') + led(204, 60, '#FFD23F', true) + wire('M88 108 C120 126 204 124 208 72', '#C9CCD6')),
   },
   {
-    id: 'svetofor', title: 'Svetofor', level: 'beginner', ready: false,
+    id: 'svetofor', title: 'Svetofor', level: 'beginner', ready: true, board: 'uno',
     description: 'Uchta LED bilan haqiqiy svetofor ketma-ketligi.',
     thumbnail: svg(uno() + '<rect x="166" y="14" width="44" height="112" rx="12" fill="#16123F" stroke="#C9CCD6" stroke-width="2"/>' +
       '<circle cx="188" cy="36" r="12" fill="#FF4B3A"/><circle cx="188" cy="36" r="18" fill="#FF4B3A" opacity=".3"/><circle cx="188" cy="70" r="12" fill="#6B5A1E"/><circle cx="188" cy="104" r="12" fill="#1E5B45"/>' +
       wire('M52 32 C60 4 140 20 166 36', '#FF6B57') + wire('M59 32 C70 50 140 70 166 70', '#FFB020') + wire('M66 32 C80 90 140 104 166 104', '#1FBF8F')),
+    // three LEDs in a row; each cathode goes through its own standing resistor to a shared GND line along the bottom
+    parts: [
+      { type: 'led', id: 'qizil', color: 'red', x: 450, y: 105 },
+      { type: 'led', id: 'sariq', color: 'yellow', x: 530, y: 105 },
+      { type: 'led', id: 'yashil', color: 'green', x: 610, y: 105 },
+      { type: 'resistor', id: 'rq', x: 462, y: 210, rot: 90 },
+      { type: 'resistor', id: 'rs', x: 542, y: 210, rot: 90 },
+      { type: 'resistor', id: 'ry', x: 622, y: 210, rot: 90 },
+    ],
+    wires: [['uno.12', 'qizil.a'], ['uno.11', 'sariq.a'], ['uno.10', 'yashil.a'],
+      ['qizil.k', 'rq.1'], ['sariq.k', 'rs.1'], ['yashil.k', 'ry.1'],
+      ['rq.2', 'uno.gnd3'], ['rs.2', 'rq.2'], ['ry.2', 'rs.2']],
+    code: TRAFFIC_CODE,
   },
   {
-    id: 'potentsiometr', title: 'Potentsiometr', level: 'beginner', ready: false,
+    id: 'potentsiometr', title: 'Potentsiometr', level: 'beginner', ready: true, board: 'uno',
     description: 'Dastani burab, LED yorqinligini boshqaring.',
     thumbnail: svg(uno() + '<circle cx="176" cy="88" r="24" fill="#3D3BFF" stroke="' + NAVY + '" stroke-width="2"/><circle cx="176" cy="88" r="13" fill="#C9CCD6"/><path d="M176 88 L186 76" stroke="' + NAVY + '" stroke-width="4" stroke-linecap="round"/>' +
       led(210, 34, '#FF6B57', true) + wire('M84 108 C110 124 150 122 158 104', '#FFB020') + wire('M45 32 C60 0 200 6 210 22', '#3D3BFF')),
+    parts: [
+      { type: 'resistor', id: 'r', x: 420, y: 70 },
+      { type: 'led', id: 'led', color: 'red', x: 600, y: 115 },
+      { type: 'pot', id: 'pot', x: 480, y: 280, value: 0.5 },
+    ],
+    wires: [['uno.9', 'r.1'], ['r.2', 'led.a'], ['led.k', 'uno.gnd2'],
+      ['pot.3', 'uno.5v'], ['pot.w', 'uno.a0'], ['pot.1', 'led.k']], // pot.1 reaches GND through the LED's GND wire
+    code: POT_CODE,
   },
   {
-    id: 'buzzer-melodiya', title: 'Buzzer melodiya', level: 'intermediate', ready: false,
+    id: 'buzzer-melodiya', title: 'Buzzer melodiya', level: 'intermediate', ready: true, board: 'uno',
     description: 'Buzzer yordamida kichik kuy chalish.',
     thumbnail: svg(uno() + '<circle cx="180" cy="84" r="28" fill="#16123F" stroke="#C9CCD6" stroke-width="2.5"/><circle cx="180" cy="84" r="6" fill="#C9CCD6"/>' +
       '<path d="M196 22v24a6 6 0 1 1-4-5.6V28l18-5v18a6 6 0 1 1-4-5.6V22z" fill="#FFD23F"/>' + wire('M91 32 C110 10 150 40 160 64', '#1FBF8F')),
+    parts: [{ type: 'buzzer', id: 'bz', x: 470, y: 280 }],
+    wires: [['uno.8', 'bz.p'], ['bz.n', 'uno.gnd2']],
+    code: MELODY_CODE,
   },
   {
     id: 'servo', title: 'Servo', level: 'intermediate', ready: false,

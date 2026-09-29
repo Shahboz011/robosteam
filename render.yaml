@@ -1,0 +1,20 @@
+# Render Blueprint: the RoboSTEAM compile service (compile-service/). The website itself stays on Vercel.
+# Render dashboard -> New -> Blueprint -> pick this repo. Details: compile-service/README.md
+services:
+  - type: web
+    name: robosteam-compile
+    runtime: docker
+    plan: free
+    region: frankfurt
+    rootDir: compile-service              # only changes in this folder trigger a redeploy
+    dockerfilePath: ./compile-service/Dockerfile
+    dockerContext: ./compile-service
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      # Pages allowed to call the service besides robosteam.uz / www.robosteam.uz (comma-separated),
+      # e.g. a Vercel preview URL. Leave empty for production only.
+      - key: ALLOWED_ORIGINS
+        value: ""
+      - key: RATE_PER_MIN
+        value: "30"
