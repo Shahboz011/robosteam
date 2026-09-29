@@ -74,6 +74,112 @@ void loop() {
 }
 `;
 
+const BLINK_CODE = `// RoboSTEAM: LED blink — birinchi dastur
+// LED: 13-pin -> rezistor -> LED (+) ... LED (-) -> GND
+// Platadagi "L" chirog'i ham 13-pinga ulangan: u ham birga miltillaydi.
+
+const int LED_PIN = 13;
+
+void setup() {
+  pinMode(LED_PIN, OUTPUT);     // 13-pin chiqish (OUTPUT) bo'ladi
+  Serial.begin(9600);
+}
+
+void loop() {
+  digitalWrite(LED_PIN, HIGH);  // LED'ni yoqamiz
+  Serial.println("Yondi");
+  delay(1000);                  // 1000 ms = 1 soniya kutamiz
+
+  digitalWrite(LED_PIN, LOW);   // LED'ni o'chiramiz
+  Serial.println("O'chdi");
+  delay(1000);
+}
+`;
+
+const SIMON_CODE = `// RoboSTEAM: Simon Says — ranglar ketma-ketligini eslab qolish o'yini
+// LED'lar:  13 (qizil), 12 (sariq), 11 (yashil), 10 (ko'k) -> LED -> rezistor -> GND qatori
+// Tugmalar: A0 (qizil), A1 (sariq), A2 (yashil), A3 (ko'k) -> tugma -> GND qatori
+//           INPUT_PULLUP: tugma bosilganda LOW o'qiladi
+// Buzzer:   A5 -> buzzer (+) ... buzzer (-) -> GND qatori
+// Analog pinlar (A0...A5) oddiy raqamli pin sifatida ham ishlaydi.
+
+const int LEDLAR[4]   = {13, 12, 11, 10};
+const int TUGMALAR[4] = {A0, A1, A2, A3};
+const int NOTALAR[4]  = {262, 330, 392, 523};   // har bir rangning o'z ovozi (Hz)
+const int BUZZER = A5;
+const int MAKS = 20;                            // eng uzun ketma-ketlik
+
+int ketma[MAKS];   // o'yin ketma-ketligi: 0 = qizil, 1 = sariq, 2 = yashil, 3 = ko'k
+int uzunlik = 0;
+
+// i-rangni yoqadi va ovozini chaladi
+void chiroq(int i, int ms) {
+  digitalWrite(LEDLAR[i], HIGH);
+  tone(BUZZER, NOTALAR[i]);
+  delay(ms);
+  digitalWrite(LEDLAR[i], LOW);
+  noTone(BUZZER);
+}
+
+// Tugma bosilishini kutadi va qaysi rang bosilganini qaytaradi
+int tugmaKutish() {
+  while (true) {
+    for (int i = 0; i < 4; i++) {
+      if (digitalRead(TUGMALAR[i]) == LOW) {
+        chiroq(i, 250);
+        while (digitalRead(TUGMALAR[i]) == LOW) {}   // qo'yib yuborilishini kutamiz
+        delay(50);
+        return i;
+      }
+    }
+  }
+}
+
+void setup() {
+  for (int i = 0; i < 4; i++) {
+    pinMode(LEDLAR[i], OUTPUT);
+    pinMode(TUGMALAR[i], INPUT_PULLUP);
+  }
+  pinMode(BUZZER, OUTPUT);
+  Serial.begin(9600);
+  Serial.println("Simon Says! Boshlash uchun istalgan tugmani bosing.");
+  tugmaKutish();
+  randomSeed(micros());   // tugma bosilgan payt har safar boshqacha: o'yin ham boshqacha bo'ladi
+}
+
+void loop() {
+  ketma[uzunlik] = random(4);   // ketma-ketlikka yangi rang qo'shamiz
+  uzunlik++;
+  Serial.print("Daraja: ");
+  Serial.println(uzunlik);
+  delay(600);
+
+  for (int i = 0; i < uzunlik; i++) {   // 1) ketma-ketlikni ko'rsatamiz
+    chiroq(ketma[i], 400);
+    delay(150);
+  }
+
+  for (int i = 0; i < uzunlik; i++) {   // 2) o'yinchi takrorlaydi
+    if (tugmaKutish() != ketma[i]) {
+      Serial.print("Xato! Natija: ");
+      Serial.println(uzunlik - 1);
+      tone(BUZZER, 110, 800);           // past ovoz: o'yin tugadi
+      delay(1000);
+      uzunlik = 0;
+      Serial.println("Yangi o'yin: istalgan tugmani bosing.");
+      tugmaKutish();
+      return;
+    }
+  }
+
+  if (uzunlik == MAKS) {
+    Serial.println("Ajoyib! Siz yutdingiz!");
+    uzunlik = 0;
+    delay(1500);
+  }
+}
+`;
+
 const TRAFFIC_CODE = `// RoboSTEAM: svetofor
 // Har bir LED: pin -> LED (+) ... LED (-) -> rezistor -> GND
 //   qizil: 12-pin, sariq: 11-pin, yashil: 10-pin
@@ -189,15 +295,21 @@ export const PROJECTS = [
     parts: [
       { type: 'resistor', id: 'r', x: 420, y: 90 },
       { type: 'led', id: 'led', x: 592, y: 166 },
-      { type: 'button', id: 'btn', x: 490, y: 330 },
+      { type: 'button', id: 'btn', x: 490, y: 300, rot: 90 }, // standing: pin 2 at the top leg, GND from the bottom leg
     ],
-    wires: [['uno.13', 'r.1'], ['r.2', 'led.a'], ['led.k', 'uno.gnd2'], ['uno.2', 'btn.1'], ['btn.2', 'uno.gnd3']],
+    wires: [['uno.13', 'r.1'], ['r.2', 'led.a'], ['led.k', 'btn.2'], ['uno.2', 'btn.1'], ['btn.2', 'uno.gnd2']],
     code: BUTTON_LED_CODE,
   },
   {
-    id: 'led-blink', title: 'LED blink', level: 'beginner', ready: false,
+    id: 'led-blink', title: 'LED blink', level: 'beginner', ready: true, board: 'uno',
     description: "Birinchi dastur: LED'ni yoqib-o'chirish.",
     thumbnail: svg(uno() + wire('M36 32 C40 6 150 14 158 60', '#3D3BFF') + resistor(150, 66) + wire('M184 66 H196', '#FFB020') + led(204, 60, '#FFD23F', true) + wire('M88 108 C120 126 204 124 208 72', '#C9CCD6')),
+    parts: [
+      { type: 'resistor', id: 'r', x: 420, y: 90 },
+      { type: 'led', id: 'led', color: 'yellow', x: 592, y: 270 }, // low enough that its GND wire passes under A0-A5
+    ],
+    wires: [['uno.13', 'r.1'], ['r.2', 'led.a'], ['led.k', 'uno.gnd2']],
+    code: BLINK_CODE,
   },
   {
     id: 'svetofor', title: 'Svetofor', level: 'beginner', ready: true, board: 'uno',
@@ -270,10 +382,40 @@ export const PROJECTS = [
       '<path d="M170 74v24M170 44v24" stroke="#4A1A1A" stroke-width="6" stroke-linecap="round"/>' + wire('M77 32 C100 10 140 20 156 40', '#FFB020')),
   },
   {
-    id: 'simon-says', title: 'Simon Says', level: 'intermediate', ready: false,
+    id: 'simon-says', title: 'Simon Says', level: 'intermediate', ready: true, board: 'uno',
     description: "Ranglar ketma-ketligini eslab qolish o'yini.",
     thumbnail: svg(uno() + button(162, 50, '#FF4B3A') + button(206, 50, '#3D3BFF') + button(162, 94, '#1FBF8F') + button(206, 94, '#FFD23F') +
       '<circle cx="206" cy="94" r="16" fill="#FFD23F" opacity=".3"/>'),
+    // Taller canvas. LEDs top right (resistors down to their own GND rail), coloured buttons under the board on
+    // A0-A3, buzzer on A5; everything's GND goes to the bottom rail, which is wired to the Arduino once.
+    canvas: { h: 550 },
+    parts: [
+      { type: 'led', id: 'l1', color: 'red', x: 425, y: 95 },
+      { type: 'led', id: 'l2', color: 'yellow', x: 490, y: 95 },
+      { type: 'led', id: 'l3', color: 'green', x: 555, y: 95 },
+      { type: 'led', id: 'l4', color: 'blue', x: 620, y: 95 },
+      { type: 'resistor', id: 'r1', x: 437, y: 185, rot: 90, label: '' },
+      { type: 'resistor', id: 'r2', x: 502, y: 185, rot: 90, label: '' },
+      { type: 'resistor', id: 'r3', x: 567, y: 185, rot: 90, label: '' },
+      { type: 'resistor', id: 'r4', x: 632, y: 185, rot: 90, label: '' },
+      { type: 'rail', id: 'ga', x: 437, y: 345, n: 4, pitch: 65 },
+      { type: 'button', id: 'b1', color: 'red', label: '', x: 200, y: 440, rot: 90 },
+      { type: 'button', id: 'b2', color: 'yellow', label: '', x: 260, y: 440, rot: 90 },
+      { type: 'button', id: 'b3', color: 'green', label: '', x: 320, y: 440, rot: 90 },
+      { type: 'button', id: 'b4', color: 'blue', label: '', x: 380, y: 440, rot: 90 },
+      { type: 'buzzer', id: 'bz', x: 500, y: 440 },
+      { type: 'rail', id: 'gb', x: 80, y: 530, n: 10, pitch: 60 },
+    ],
+    wires: [
+      ['uno.13', 'l1.a'], ['uno.12', 'l2.a'], ['uno.11', 'l3.a'], ['uno.10', 'l4.a'],
+      ['l1.k', 'r1.1'], ['l2.k', 'r2.1'], ['l3.k', 'r3.1'], ['l4.k', 'r4.1'],
+      ['r1.2', 'ga.1'], ['r2.2', 'ga.2'], ['r3.2', 'ga.3'], ['r4.2', 'ga.4'],
+      ['uno.a0', 'b1.1'], ['uno.a1', 'b2.1'], ['uno.a2', 'b3.1'], ['uno.a3', 'b4.1'],
+      ['b1.2', 'gb.3'], ['b2.2', 'gb.4'], ['b3.2', 'gb.5'], ['b4.2', 'gb.6'],
+      ['uno.a5', 'bz.p'], ['bz.n', 'gb.8'],
+      ['ga.4', 'gb.10'], ['uno.gnd2', 'gb.1'],
+    ],
+    code: SIMON_CODE,
   },
   {
     id: 'esp32-wifi-scan', title: 'ESP32 WiFi scan', level: 'intermediate', ready: false, board: 'esp32',

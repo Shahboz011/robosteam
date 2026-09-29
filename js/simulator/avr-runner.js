@@ -1,6 +1,6 @@
 /* ATmega328P (Arduino Uno) emulation on avr8js: loads a compiled Intel HEX, runs it in real time on
-   requestAnimationFrame, and exposes Uno digital pins D0-D13, analog inputs A0-A5 and the Serial (USART0)
-   output. Nothing here is simplified: the CPU executes the real compiled machine code, delay()/millis() come
+   requestAnimationFrame, and exposes the Uno pins D0-D13 and A0-A5 (analog inputs, or digital pins 14-19) and the
+   Serial (USART0) output. Nothing here is simplified: the CPU executes the real compiled machine code, delay()/millis() come
    from the emulated Timer0 at 16 MHz, analogWrite() is the real timer PWM and tone() the real Timer2 toggle.
 
    The page redraws ~60 times a second, far too slowly to see a 490 Hz PWM signal or a 440 Hz tone by sampling
@@ -43,8 +43,9 @@ export function parseHex(text) {
   return new Uint16Array(flash.buffer);
 }
 
-/* Uno digital pin number -> [port, bit]. D0-D7 = PORTD, D8-D13 = PORTB. */
-function pinMap(d) { return d < 8 ? ['D', d] : ['B', d - 8]; }
+/* Uno digital pin number -> [port, bit]. D0-D7 = PORTD, D8-D13 = PORTB, A0-A5 = D14-D19 = PORTC. */
+export const PIN_COUNT = 20;
+function pinMap(d) { return d < 8 ? ['D', d] : d < 14 ? ['B', d - 8] : ['C', d - 14]; }
 
 export class AVRRunner {
   constructor(hexText) {
@@ -56,10 +57,11 @@ export class AVRRunner {
     this.external = new Map(); // digital pin -> level forced by the circuit (absent = floating)
     this.applied = new Map();  // digital pin -> level last fed into the PIN register
     // Per-pin activity for sample(): current level, cycles spent HIGH, rising edges and their spacing.
-    this.act = Array.from({ length: 14 }, () => ({ level: 0, since: 0, high: 0, lastRise: -1, lastPeriod: 0, periodSum: 0, periods: 0, duty: 0, freq: 0 }));
+    this.act = Array.from({ length: PIN_COUNT }, () => ({ level: 0, since: 0, high: 0, lastRise: -1, lastPeriod: 0, periodSum: 0, periods: 0, duty: 0, freq: 0 }));
     this.windowStart = 0;
     this.watch(this.ports.D, 0);
     this.watch(this.ports.B, 8);
+    this.watch(this.ports.C, 14);
     this.raf = 0;
     this.last = 0;
     this.onFrame = null;     // called after every frame's worth of cycles
@@ -68,7 +70,7 @@ export class AVRRunner {
   }
 
   watch(port, base) {
-    const count = base === 0 ? 8 : 6;
+    const count = base === 0 ? 8 : 6; // PORTD: D0-D7; PORTB: D8-D13; PORTC: A0-A5
     let last = 0;
     port.addListener((value) => {
       // avr8js has no internal pull-ups: re-evaluate floating pins synchronously whenever the program writes

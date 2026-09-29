@@ -110,6 +110,61 @@ test('Buzzer melodiya: pin 8 plays the melody at the right pitches', async () =>
   assert.match(serial(), /Kuy boshlandi!\r\nNota: 262 Hz/);
 });
 
+test('LED blink: pin 13 on 1 s, off 1 s, Serial says so', async () => {
+  const edges = [];
+  let last = null;
+  const { serial } = await runProject('led-blink', 4200, (r, t) => {
+    const s = r.pinState(13);
+    if (s !== last) { edges.push(Math.round(t)); last = s; }
+  });
+  const gaps = edges.slice(2).map((t, i) => t - edges[i + 1]);
+  assert.ok(gaps.length >= 2 && gaps.every((g) => Math.abs(g - 1000) <= 20), 'half-periods ' + gaps);
+  assert.match(serial(), /Yondi\r\nO'chdi\r\nYondi/);
+});
+
+test('Simon Says: start, repeat the shown colour, level up, wrong colour ends the game', async () => {
+  const { status, body } = await compile(PROJECTS.find((p) => p.id === 'simon-says').code);
+  assert.equal(status, 200, body.error);
+  const r = new AVRRunner(Buffer.from(body.hex, 'base64').toString('ascii'));
+  let serial = '';
+  r.onSerial = (c) => { serial += c; };
+  const LEDS = [13, 12, 11, 10], BUTTONS = [14, 15, 16, 17], NOTES = [262, 330, 392, 523], BUZZER = 19;
+  const frame = 16000000 / 60;
+  const run = (ms, each) => { for (let t = 0; t < ms; t += 1000 / 60) { r.runCycles(frame); r.sample(); if (each) each(); } };
+  const press = (i) => { r.setInput(BUTTONS[i], false); run(300); r.setInput(BUTTONS[i], null); run(300); };
+  // watch the LEDs for `ms`; return the colours shown (in order) and the pitch heard with each
+  const watch = (ms) => {
+    const shown = [];
+    let lit = -1;
+    run(ms, () => {
+      const now = LEDS.findIndex((d) => r.pinState(d) === PinState.High);
+      if (now !== lit && now >= 0) shown.push({ i: now, hz: 0 });
+      if (now >= 0 && !shown[shown.length - 1].hz) shown[shown.length - 1].hz = Math.round(r.activity(BUZZER).freq);
+      lit = now;
+    });
+    return shown;
+  };
+
+  run(300);
+  assert.match(serial, /Simon Says! Boshlash uchun istalgan tugmani bosing\./);
+  press(0);                                   // any button starts the game
+  const level1 = watch(1500);
+  assert.match(serial, /Daraja: 1/);
+  assert.equal(level1.length, 1, 'level 1 shows one colour');
+  assert.ok(Math.abs(level1[0].hz - NOTES[level1[0].i]) <= 2, `colour ${level1[0].i} plays ${level1[0].hz} Hz`);
+
+  press(level1[0].i);                         // repeat it
+  const level2 = watch(2200);
+  assert.match(serial, /Daraja: 2/);
+  assert.equal(level2.length, 2, 'level 2 shows two colours');
+  assert.equal(level2[0].i, level1[0].i, 'the sequence keeps the first colour');
+
+  press(level2[0].i);                         // first right…
+  press((level2[1].i + 1) % 4);               // …then wrong
+  run(1500);
+  assert.match(serial, /Xato! Natija: 1\r\nYangi o'yin: istalgan tugmani bosing\./);
+});
+
 test('compile error is returned with the line number', async () => {
   const { status, body } = await compile('void setup() {\n  pinMode(13, OUTPUT)\n}\nvoid loop() {}\n');
   assert.equal(status, 400);

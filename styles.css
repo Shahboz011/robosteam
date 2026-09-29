@@ -553,6 +553,7 @@ a.lesson:hover { background: color-mix(in srgb, var(--blue) 10%, transparent); }
 .sim-canvas .led-part { --off: #A8392F; --on: #FF7A63; }
 .sim-canvas .led-part.is-yellow { --off: #8C6D12; --on: #FFE066; }
 .sim-canvas .led-part.is-green { --off: #1C6B4F; --on: #5CF5BE; }
+.sim-canvas .led-part.is-blue { --off: #1B3F8C; --on: #7FB2FF; }
 .sim-canvas .led-body, .sim-canvas .led-rim { fill: var(--off); stroke: #16123F; stroke-width: 2.5; }
 .sim-canvas .led-lit { fill: var(--on); opacity: var(--b, 0); pointer-events: none; }
 .sim-canvas .led-glow { opacity: var(--b, 0); pointer-events: none; }
@@ -575,7 +576,15 @@ a.lesson:hover { background: color-mix(in srgb, var(--blue) 10%, transparent); }
 .sim-canvas .btn-part { cursor: pointer; touch-action: none; }
 .sim-canvas .btn-base { fill: #16123F; }
 .sim-canvas .btn-cap { fill: var(--coral); stroke: #fff; stroke-width: 2; transform-box: fill-box; transform-origin: center; transition: transform .06s; }
-.sim-canvas .btn-part.is-pressed .btn-cap { fill: #C4453A; transform: scale(.86); }
+.sim-canvas .btn-part.is-red .btn-cap { fill: #FF4B3A; }
+.sim-canvas .btn-part.is-yellow .btn-cap { fill: #FFD23F; }
+.sim-canvas .btn-part.is-green .btn-cap { fill: #3DF2B0; }
+.sim-canvas .btn-part.is-blue .btn-cap { fill: #3D8BFF; }
+.sim-canvas .btn-part.is-pressed .btn-cap { filter: brightness(.75); transform: scale(.86); }
+/* GND rail (breadboard power rail): all holes connected */
+.sim-canvas .rail-strip { fill: #F7F6FF; stroke: #16123F; stroke-width: 2; }
+.sim-canvas .rail-line { stroke: #2F6FD6; stroke-width: 3; stroke-linecap: round; }
+.sim-canvas .rail-label { fill: #2F6FD6; font: 800 18px var(--body); text-anchor: middle; }
 .sim-canvas .btn-part:focus { outline: none; }
 .sim-canvas .btn-part:focus-visible .btn-base { stroke: var(--blue); stroke-width: 4; }
 .sim-canvas .pin { cursor: crosshair; }
